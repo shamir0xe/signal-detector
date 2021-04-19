@@ -1,0 +1,6 @@
+{
+    "past_days": 14,
+    "signals": ["rsi", "stoch", "stoch/rsi", "trend/rsi"],
+    "interval": "4hour",
+    "market": "bchbtc"
+}
