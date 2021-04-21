@@ -111,7 +111,7 @@ class RsiDivergence(Indicator):
             for j in picks:
                 if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
-                if rsi[i] + 1.5 < rsi[j] and max(rsi[i:j + 1]) == rsi[j]:
+                if rsi[i] + 1.5 <= rsi[j] and min(rsi[i:j + 1]) == rsi[i]:
                     # ShowGeometryPlot.do([Geometry.Point(i, rsi[i]), Geometry.Point(j, rsi[j])])
                     lower_bounds = LowerBoundConvex([Geometry.Point(k, self.data[k].closing) for k in range(i, j + 1)]).do()
                     index_array = [round(point.x) for point in lower_bounds]

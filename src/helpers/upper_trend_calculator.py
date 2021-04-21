@@ -3,6 +3,7 @@ from typing import List
 from ..models.candle import Candle
 from .convex_calculator import UpperBoundConvex
 from libs.PythonLibrary.geometry import Geometry
+from .show_plot import ShowGeometryPlot
 
 
 class UpperTrendCalculator:
@@ -24,9 +25,10 @@ class UpperTrendCalculator:
         # if border_lines[0][1] / total_volume < self.config.get('min_trend_weight'):
             # self.pass_weight = False
         trend_indices = border_lines[0][0]
-        return Geometry.Line(
+        trendline = Geometry.Line(
             Geometry.Point(trend_indices[0], self.data[trend_indices[0]].openning),
             Geometry.Point(trend_indices[1], self.data[trend_indices[1]].openning),
         )
-        # ShowGeometryPlot.do([self.trendline.p1, self.trendline.p2])
+        # ShowGeometryPlot.do([trendline.p1, trendline.p2])
+        return trendline
 

@@ -58,7 +58,7 @@ class App:
         self.pending_signals = []
         for signal in signals:
             index = TrendlinesFilter().validate(signal, self.data)
-            debug_text('t:%, validation result: %', TimeConverter.seconds_to_timestamp(signal.candle.time),index)
+            debug_text('%, t:%, validation result: %', signal.type, TimeConverter.seconds_to_timestamp(signal.candle.time),index)
             if index > 0:
                 signal.original_candle = signal.candle
                 signal.candle = self.data[index]
@@ -76,7 +76,8 @@ class App:
                 res[signal.name] = {
                     +1: 0,
                     -1: 0,
-                    0: 0
+                    0: 0,
+                    -2: 0,
                 }
             res[signal.name][signal.status] += 1
         for signal_name in [*res]:
@@ -94,7 +95,7 @@ class App:
                 signal.type, 
                 TimeConverter.seconds_to_timestamp(signal.candle.time), 
                 TimeConverter.seconds_to_timestamp(signal.original_candle.time) if not signal.original_candle is None else None, 
-                'OK' if signal.status == +1 else 'Failed' if signal.status == -1 else 'Pending'
+                'OK' if signal.status == +1 else 'Failed' if signal.status == -1 else 'Pending' if signal.status == 0 else 'Dumped'
             )
         return self
 

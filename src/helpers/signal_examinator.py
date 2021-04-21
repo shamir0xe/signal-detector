@@ -18,6 +18,7 @@ class SignalExaminator:
             'loss_factor': 0.03,
             'candle_margin': 3,
             'farthest_candle': 5,
+            'signal_life': 15,
         }
 
     def do(self, signal: Signal, data: List[Candle]) -> int:
@@ -32,6 +33,8 @@ class SignalExaminator:
         debug_text('i:%, examining long: % -> (%, %)', signal.index, signal.candle.closing, stop_limit, profit_point)
         index = signal.index + 1
         while index < len(data):
+            if index - signal.index > self.config.get('signal_life'):
+                return -2
             if data[index].closing < stop_limit:
                 debug_text('watafak, index: %, time: %', index, TimeConverter.seconds_to_timestamp(data[index].time))
                 return -1
@@ -54,6 +57,8 @@ class SignalExaminator:
         debug_text('i:%, examining short: % -> (%, %)', signal.index, signal.candle.closing, profit_point, stop_limit)
         index = signal.index + 1
         while (index < len(data)):
+            if index - signal.index > self.config.get('signal_life'):
+                return -2
             if data[index].closing > stop_limit:
                 debug_text('watafak, index: %, time: %', index, TimeConverter.seconds_to_timestamp(data[index].time))
                 return -1

@@ -45,14 +45,14 @@ class TrendlineDelegator:
         return range(start, self.index + 1)
 
     def check_slope(self) -> bool:
-        if self.signal.type is SignalTypes.LONG and self.trendline.p2.subtract(self.trendline.p1).sin() >= self.config.get('min_slope'):
-            return False
-        if self.signal.type is SignalTypes.SHORT and self.trendline.p2.subtract(self.trendline.p1).sin() <= -self.config.get('min_slope'):
-            return False
+        # if self.signal.type is SignalTypes.LONG and self.trendline.p2.subtract(self.trendline.p1).sin() >= self.config.get('min_slope'):
+            # return False
+        # if self.signal.type is SignalTypes.SHORT and self.trendline.p2.subtract(self.trendline.p1).sin() <= -self.config.get('min_slope'):
+            # return False
         return True
 
     def find_index(self) -> int:
-        return self.signal.index + 4
+        return self.index + 5
         l1 = LowerTrendCalculator(self.data, self.find_range()).do()
         l2 = UpperTrendCalculator(self.data, self.find_range()).do()
         p = Geometry.intersection(l1, l2)
