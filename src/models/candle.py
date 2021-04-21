@@ -12,13 +12,13 @@ class Candle:
         amount: float,
         market: str
     ) -> None:
-        self.time = time
-        self.openning = openning
-        self.closing = closing
-        self.highest = highest
-        self.lowest = lowest
-        self.volume = volume
-        self.amount = amount
+        self.time = int(time)
+        self.openning = float(openning)
+        self.closing = float(closing)
+        self.highest = float(highest)
+        self.lowest = float(lowest)
+        self.volume = float(volume)
+        self.amount = float(amount)
         self.market = market
 
 

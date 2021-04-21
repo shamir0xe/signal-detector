@@ -11,7 +11,10 @@ def main():
     .apply_arguments() \
     .fetch_data() \
     .detect_signals() \
-    .output_results() \
+    .filter_trendlines() \
+    .examining_signals() \
+    .print_results() \
+    .print_indicators_summary() \
 
 if __name__ == '__main__':
     main()
