@@ -1,8 +1,8 @@
 from typing import List
 from libs.PythonLibrary.geometry import Geometry
-
 from libs.PythonLibrary.utils import debug_text
-from ..helpers.show_plot import ShowGeometryPlot
+from ..geometry.show_plot import ShowGeometryPlot
+from ...models.trend_types import TrendTypes
 
 class UpperBoundConvex:
     def __init__(self, data: List[Geometry.Point]) -> None:
@@ -47,3 +47,14 @@ class LowerBoundConvex:
             i += 1
         # ShowGeometryPlot().do(data, stack)
         return stack
+
+class ConvexBound:
+    def __init__(self, data: List[Geometry.Point]) -> None:
+        self.data = data
+
+    def do(self, trend: TrendTypes) -> List[Geometry.Point]:
+        if trend is TrendTypes.UP:
+            return UpperBoundConvex(self.data).do()
+        if trend is TrendTypes.DOWN:
+            return LowerBoundConvex(self.data).do()
+        return []

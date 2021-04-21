@@ -1,18 +1,20 @@
 import math
-from libs.PythonLibrary.geometry import Geometry
-from typing import Any, Dict, List
 
+from typing import Any, Dict, List
+from ..models.trend_types import TrendTypes
 from .indicator_abstract import Indicator
 from ..models.signal import Signal
 from ..models.candle import Candle
 from ..models.signal_types import SignalTypes
 from libs.PythonLibrary.utils import debug_text
-from ..helpers.rsi_calculator import RsiCalculator
-from ..helpers.overbought_calculator import OverBoughtCalculator
-from ..helpers.oversold_calculator import OverSoldCalculator
-from ..helpers.show_plot import ShowGeometryPlot
-from ..helpers.convex_calculator import LowerBoundConvex, UpperBoundConvex
-from ..helpers.time_converter import TimeConverter
+from ..helpers.indicators.rsi_calculator import RsiCalculator
+from ..helpers.chart.overbought_calculator import OverBoughtCalculator
+from ..helpers.chart.oversold_calculator import OverSoldCalculator
+from ..helpers.geometry.show_plot import ShowGeometryPlot
+from ..helpers.time.time_converter import TimeConverter
+from ..helpers.geometry.convex_path_check import ConvexPathCheck
+from ..helpers.trend.trend_calculator import TrendCalculator
+
 
 
 class RsiDivergence(Indicator):
@@ -74,25 +76,19 @@ class RsiDivergence(Indicator):
             for j in picks:
                 if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
-                if rsi[i] >= rsi[j] + 1.5 and max(rsi[i:j + 1]) == rsi[i]:
-                    # ShowGeometryPlot.do([Geometry.Point(i, rsi[i]), Geometry.Point(j, rsi[j])])
-                    upper_bounds = UpperBoundConvex([Geometry.Point(k, self.data[k].closing) for k in range(i, j + 1)]).do()
-                    index_array = [round(point.x) for point in upper_bounds]
-                    index_array = index_array[::-1]
-                    border_lines = [
-                        [(index_array[i], index_array[i + 1]), 
-                        math.fabs(sum([self.data[j].volume for j in range(index_array[i], index_array[i + 1])]))]
-                        for i in range(len(index_array) - 1)
-                    ]
-                    border_lines.sort(key=lambda weighted_line: -weighted_line[1])
-                    # for border in border_lines:
-                    #     debug_text('border-line: %', border)
-                    major_indices = border_lines[0][0] 
-                    c1 = self.data[major_indices[0]]
-                    c2 = self.data[major_indices[1]]
+                if rsi[i] >= rsi[j] + 1.5:
+                    if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.UP):
+                        continue
+                    trendline = TrendCalculator(
+                        [candle.closing for candle in self.data], 
+                        range(i, j + 1), 
+                        [candle.volume for candle in self.data]
+                    ).do(TrendTypes.UP)
+                    # trendline = UpperTrendCalculator(self.data, range(i, j + 1)).do("closing")
+                    c1 = self.data[round(trendline.p1.x)]
+                    c2 = self.data[round(trendline.p2.x)]
                     if c1.closing + self.__average_candle_length(c1, c2) / 4 < c2.closing:
-                        # debug_text('YEAY we have signal')
-                        debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
+                        # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
                         res.append(Signal(
                             name = self.name,
                             type = SignalTypes.SHORT,
@@ -111,24 +107,18 @@ class RsiDivergence(Indicator):
             for j in picks:
                 if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
-                if rsi[i] + 1.5 <= rsi[j] and min(rsi[i:j + 1]) == rsi[i]:
-                    # ShowGeometryPlot.do([Geometry.Point(i, rsi[i]), Geometry.Point(j, rsi[j])])
-                    lower_bounds = LowerBoundConvex([Geometry.Point(k, self.data[k].closing) for k in range(i, j + 1)]).do()
-                    index_array = [round(point.x) for point in lower_bounds]
-                    index_array = index_array[::-1]
-                    border_lines = [
-                        [(index_array[i], index_array[i + 1]), 
-                        math.fabs(sum([self.data[j].volume for j in range(index_array[i], index_array[i + 1])]))]
-                        for i in range(len(index_array) - 1)
-                    ]
-                    border_lines.sort(key=lambda weighted_line: -weighted_line[1])
-                    # for border in border_lines:
-                        # debug_text('border-line: %', border)
-                    major_indices = border_lines[0][0] 
-                    c1 = self.data[major_indices[0]]
-                    c2 = self.data[major_indices[1]]
+                if rsi[i] + 1.5 <= rsi[j]:
+                    if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):
+                        continue
+                    trendline = TrendCalculator(
+                        [candle.closing for candle in self.data],
+                        range(i, j + 1),
+                        [candle.volume for candle in self.data]
+                    ).do(TrendTypes.DOWN)
+                    # trendline = LowerTrendCalculator(self.data, range(i, j + 1)).do("closing")
+                    c1 = self.data[round(trendline.p1.x)]
+                    c2 = self.data[round(trendline.p2.x)]
                     if c2.closing + self.__average_candle_length(c1, c2) / 4 < c1.closing:
-                        # debug_text('HELL YEA!')
                         res.append(Signal(
                             name = self.name,
                             type = SignalTypes.LONG,

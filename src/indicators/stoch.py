@@ -5,9 +5,9 @@ from ..models.signal import Signal
 from ..models.candle import Candle
 from ..models.signal_types import SignalTypes
 from libs.PythonLibrary.utils import debug_text
-from ..helpers.stoch_calculator import StochCalculator
-from ..helpers.overbought_calculator import OverBoughtCalculator
-from ..helpers.oversold_calculator import OverSoldCalculator
+from ..helpers.indicators.stoch_calculator import StochCalculator
+from ..helpers.chart.overbought_calculator import OverBoughtCalculator
+from ..helpers.chart.oversold_calculator import OverSoldCalculator
 
 
 class Stoch(Indicator):

@@ -12,9 +12,9 @@ def main():
     .fetch_data() \
     .detect_signals() \
     .filter_trendlines() \
+    .remove_duplicates() \
     .examining_signals() \
-    .print_results() \
-    .print_indicators_summary() \
+    .print_results()
 
 if __name__ == '__main__':
     main()

@@ -6,14 +6,13 @@ from libs.PythonLibrary.utils import debug_text
 from math import fabs
 from typing import Dict, List
 
+from ..models.trend_types import TrendTypes
 from ..models.signal_types import SignalTypes
 from ..models.signal import Signal
 from ..models.candle import Candle
 from libs.PythonLibrary.geometry import Geometry
-from ..helpers.convex_calculator import UpperBoundConvex, LowerBoundConvex
-from ..helpers.show_plot import ShowGeometryPlot
-from ..helpers.lower_trend_calculator import LowerTrendCalculator
-from ..helpers.upper_trend_calculator import UpperTrendCalculator
+from ..helpers.geometry.show_plot import ShowGeometryPlot
+from ..helpers.trend.trend_calculator import TrendCalculator
 
 class TrendlineDelegator:
     def __init__(self, signal: Signal, data: List[Candle]) -> None:
@@ -33,11 +32,21 @@ class TrendlineDelegator:
         }
 
     def downtrend(self) -> TrendlineDelegator:
-        self.trendline = UpperTrendCalculator(self.data, self.find_range()).do()
+        self.trendline = TrendCalculator(
+            [candle.openning for candle in self.data], 
+            self.find_range(), 
+            [candle.volume for candle in self.data]
+        ).do(TrendTypes.UP)
+        # self.trendline = UpperTrendCalculator(self.data, self.find_range()).do("openning")
         return self
 
     def uptrend(self) -> TrendlineDelegator:
-        self.trendline = LowerTrendCalculator(self.data, self.find_range()).do()
+        self.trendline = TrendCalculator(
+            [candle.openning for candle in self.data],
+            self.find_range(),
+            [candle.volume for candle in self.data]
+        ).do(TrendTypes.DOWN)
+        # self.trendline = LowerTrendCalculator(self.data, self.find_range()).do("openning")
         return self
     
     def find_range(self) -> List[int]:
@@ -52,7 +61,7 @@ class TrendlineDelegator:
         return True
 
     def find_index(self) -> int:
-        return self.index + 5
+        return self.index + 1
         l1 = LowerTrendCalculator(self.data, self.find_range()).do()
         l2 = UpperTrendCalculator(self.data, self.find_range()).do()
         p = Geometry.intersection(l1, l2)
@@ -61,15 +70,21 @@ class TrendlineDelegator:
         debug_text('next index of %: %', self.signal.index, math.ceil(p.x))
         return math.ceil(p.x)
 
+    def get_side(self, point: Geometry.Point) -> int:
+        return Geometry.side_sign(self.trendline.p1, self.trendline.p2, point)
+
     def check_passline(self) -> int:
         if self.trendline is None:
             return 0
         if not self.check_slope() or not self.pass_weight:
             return -1
         index = self.find_index()
+        reference_point = Geometry.Point(self.index, self.data[self.index].closing)
         while index < len(self.data) and index - self.index < self.config.get('signal_life'):
-            if Geometry.side_sign(self.trendline.p1, self.trendline.p2, Geometry.Point(index, self.data[index].closing)) * \
-                Geometry.side_sign(self.trendline.p1, self.trendline.p2, Geometry.Point(self.index, self.data[self.index].closing)) == -1:
+            p_box_1 = Geometry.Point(index, self.data[index].closing)
+            p_box_2 = Geometry.Point(index, self.data[index].openning)
+            if self.get_side(reference_point) * self.get_side(p_box_1) == -1 and \
+                self.get_side(reference_point) * self.get_side(p_box_2) == -1:
                 return index
             index += 1
         if index - self.index >= self.config.get('signal_life'):

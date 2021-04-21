@@ -1,6 +1,6 @@
 {
     "past_days": 222,
-    "signals": ["rsi-divergence"],
+    "signals": ["rsi-divergence", "rsi", "stoch"],
     "interval": "1hour",
     "market": "btcusdt"
 }

@@ -5,9 +5,9 @@ from ..models.signal import Signal
 from ..models.candle import Candle
 from ..models.signal_types import SignalTypes
 from libs.PythonLibrary.utils import debug_text
-from ..helpers.rsi_calculator import RsiCalculator
-from ..helpers.overbought_calculator import OverBoughtCalculator
-from ..helpers.oversold_calculator import OverSoldCalculator
+from ..helpers.indicators.rsi_calculator import RsiCalculator
+from ..helpers.chart.overbought_calculator import OverBoughtCalculator
+from ..helpers.chart.oversold_calculator import OverSoldCalculator
 
 
 class Rsi(Indicator):

@@ -1,4 +1,6 @@
-from ..helpers.time_converter import TimeConverter
+import math
+from typing import Any
+from ..helpers.time.time_converter import TimeConverter
 
 class Candle:
     def __init__(
@@ -21,6 +23,12 @@ class Candle:
         self.amount = float(amount)
         self.market = market
 
+
+    def get(self, attribute: str) -> Any:
+        return getattr(self, attribute)
+    
+    def get_size(self) -> float:
+        return math.fabs(self.closing - self.openning)
 
     def __str__(self) -> str:
         return '[market: {}, time: {}, o: {}, c: {}, h: {}, l: {}, v: {}, amount: {}]'.format(
