@@ -111,10 +111,11 @@ class App:
                 'name': signal.name,
                 'type': signal.type.name,
                 'time': signal.candle.time,
+                'market': self.market,
                 'status': 'OK' if signal.status == +1 else 'Failed' if signal.status == -1 else 'Pending' if signal.status == 0 else 'Dumped',
                 'details': {
-                    'entry': PriceCalculator(self.data, signal).do(PriceTypes.ENTRY_PRICE),
-                    'sell_price': PriceCalculator(self.data, signal).do(PriceTypes.SELL_PRICE),
+                    'entry_price': PriceCalculator(self.data, signal).do(PriceTypes.ENTRY_PRICE),
+                    'take_profit': PriceCalculator(self.data, signal).do(PriceTypes.SELL_PRICE),
                     'stop_loss': PriceCalculator(self.data, signal).do(PriceTypes.STOP_LOSS),
                 }
             })
