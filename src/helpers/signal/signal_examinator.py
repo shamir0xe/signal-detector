@@ -1,3 +1,4 @@
+from ...helpers.config.config_reader import ConfigReader
 from libs.PythonLibrary.utils import debug_text
 from typing import List
 from ...models.price_types import PriceTypes
@@ -5,15 +6,14 @@ from ...models.signal_types import SignalTypes
 from ...models.signal import Signal
 from ...models.candle import Candle
 from ..price.price_calculator import PriceCalculator
+from ...helpers.time.time_converter import TimeConverter
 
 class SignalExaminator:
     def __init__(self) -> None:
         self.config = self.__read_config()
 
     def __read_config(self):
-        return {
-            'signal_life': 15,
-        }
+        return ConfigReader('helpers.signal.signal-examinator')
 
     def do(self, signal: Signal, data: List[Candle]) -> int:
         if signal.type is SignalTypes.LONG:

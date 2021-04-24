@@ -1,5 +1,10 @@
 from typing import List
 
+from ...helpers.config.config_reader import ConfigReader
+from ...delegators.trendline_delegator import TrendlineDelegator
+
+from ...helpers.trend.trend_calculator import TrendCalculator
+
 from ...models.signal_types import SignalTypes
 from ...models.signal import Signal
 from ...models.price_types import PriceTypes
@@ -19,10 +24,7 @@ class PriceCalculator:
         return -1
 
     def __read_config(self):
-        return {
-            'candle_margin': 2.8,
-            'farthest_candle': 5
-        }
+        return ConfigReader("helpers.price.price-calculator")
 
     def __average_candle_size(self) -> float:
         index = self.signal.index
@@ -31,20 +33,38 @@ class PriceCalculator:
 
     def __short_price(self, price_type: PriceTypes) -> float:
         candle_size = self.__average_candle_size()
+        trendline_height = TrendlineDelegator(self.signal, self.data).uptrend().get_trendline_hegiht()
         if price_type is PriceTypes.ENTRY_PRICE:
             return self.signal.candle.closing
         if price_type is PriceTypes.SELL_PRICE:
-            return self.signal.candle.closing - candle_size * self.config.get('candle_margin') 
+            # return self.signal.candle.closing - candle_size * self.config.get('candle_margin') 
+            return max(
+                self.signal.candle.closing - candle_size * self.config.get('candle_margin'), 
+                self.signal.candle.closing - trendline_height / 2
+            )
         if price_type is PriceTypes.STOP_LOSS:
-            return self.signal.candle.closing + candle_size * self.config.get('candle_margin')
+            # return self.signal.candle.closing + candle_size * self.config.get('candle_margin')
+            return max(
+                self.signal.candle.closing + candle_size * self.config.get('candle_margin'),
+                self.signal.candle.closing + trendline_height / 2
+            )
         return 0
     
     def __long_price(self, price_type: PriceTypes) -> float:
         candle_size = self.__average_candle_size()
+        trendline_height = TrendlineDelegator(self.signal, self.data).downtrend().get_trendline_hegiht()
         if price_type is PriceTypes.ENTRY_PRICE:
             return self.signal.candle.closing
         if price_type is PriceTypes.SELL_PRICE:
-            return self.signal.candle.closing + candle_size * self.config.get('candle_margin') 
+            # return self.signal.candle.closing + candle_size * self.config.get('candle_margin') 
+            return min(
+                self.signal.candle.closing + candle_size * self.config.get('candle_margin'),
+                self.signal.candle.closing + trendline_height / 2
+            )
         if price_type is PriceTypes.STOP_LOSS:
-            return self.signal.candle.closing - candle_size * self.config.get('candle_margin')
+            # return self.signal.candle.closing - candle_size * self.config.get('candle_margin')
+            return min(
+                self.signal.candle.closing - candle_size * self.config.get('candle_margin'),
+                self.signal.candle.closing + trendline_height / 2
+            )
         return 0

@@ -13,6 +13,7 @@ from ..models.candle import Candle
 from libs.PythonLibrary.geometry import Geometry
 from ..helpers.geometry.show_plot import ShowGeometryPlot
 from ..helpers.trend.trend_calculator import TrendCalculator
+from ..helpers.config.config_reader import ConfigReader
 
 class TrendlineDelegator:
     def __init__(self, signal: Signal, data: List[Candle]) -> None:
@@ -24,12 +25,7 @@ class TrendlineDelegator:
         self.pass_weight = True
 
     def __read_config(self) -> Dict:
-        return  {
-            'convex_length': 25,
-            'signal_life': 25,
-            'min_slope': 0.001,
-            'min_trend_weight': 0.1
-        }
+        return ConfigReader('delegators.trend-line-delegator')
 
     def downtrend(self) -> TrendlineDelegator:
         self.trendline = TrendCalculator(
@@ -67,11 +63,14 @@ class TrendlineDelegator:
         p = Geometry.intersection(l1, l2)
         if p is None:
             return  -1
-        debug_text('next index of %: %', self.signal.index, math.ceil(p.x))
+        # debug_text('next index of %: %', self.signal.index, math.ceil(p.x))
         return math.ceil(p.x)
 
     def get_side(self, point: Geometry.Point) -> int:
         return Geometry.side_sign(self.trendline.p1, self.trendline.p2, point)
+
+    def get_trendline_hegiht(self) -> float:
+        return math.fabs(self.trendline.p1.y - self.trendline.p2.y)
 
     def check_passline(self) -> int:
         if self.trendline is None:
@@ -80,7 +79,8 @@ class TrendlineDelegator:
             return -1
         index = self.find_index()
         reference_point = Geometry.Point(self.index, self.data[self.index].closing)
-        while index < len(self.data) and index - self.index < self.config.get('signal_life'):
+        # -1 is so important, because the result still being updated in that candle!
+        while index < len(self.data) - 1 and index - self.index < self.config.get('signal_life'):
             p_box_1 = Geometry.Point(index, self.data[index].closing)
             p_box_2 = Geometry.Point(index, self.data[index].openning)
             if self.get_side(reference_point) * self.get_side(p_box_1) == -1 and \

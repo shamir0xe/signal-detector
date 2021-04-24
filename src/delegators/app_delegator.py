@@ -83,10 +83,10 @@ class App:
                     -2: 0,
                 }
             res[signal.name][signal.status] += 1
-        for signal_name in [*res]:
-            denominator = res[signal_name][+1] + res[signal_name][-1]
-            if denominator > 0.5:
-                debug_text('%: %', signal_name, 1. * res[signal_name][+1] / denominator)
+        # for signal_name in [*res]:
+        #     denominator = res[signal_name][+1] + res[signal_name][-1]
+        #     if denominator > 0.5:
+        #         debug_text('%: %', signal_name, 1. * res[signal_name][+1] / denominator)
         return self
 
     def remove_duplicates(self) -> App:

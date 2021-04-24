@@ -14,6 +14,7 @@ from ..helpers.geometry.show_plot import ShowGeometryPlot
 from ..helpers.time.time_converter import TimeConverter
 from ..helpers.geometry.convex_path_check import ConvexPathCheck
 from ..helpers.trend.trend_calculator import TrendCalculator
+from ..helpers.config.config_reader import ConfigReader
 
 
 
@@ -23,12 +24,8 @@ class RsiDivergence(Indicator):
         self.data = data
         self.config = self.__read_config()
 
-    def __read_config(self) -> Dict:
-        return {
-            'max_pick_distance': 10,
-            'upperbound_threshold': 60,
-            'lowerbound_threshold': 40,
-        }
+    def __read_config(self) -> ConfigReader:
+        return ConfigReader('indicators.rsi-divergence');
     
     def get_signals(self) -> List[Signal]:
         res = []
@@ -67,6 +64,26 @@ class RsiDivergence(Indicator):
         s = sum([math.fabs(candle.openning - candle.closing) for candle in candles])
         return s / len(candles)
 
+    def __check_rsi_short(self, rsi: Any, i: int, j: int) -> bool:
+        return rsi[i] >= rsi[j] + self.config.get('min_rsi_diff')
+    
+    def __check_rsi_long(self, rsi: Any, i: int, j: int) -> bool:
+        return rsi[i] + self.config.get('min_rsi_diff') <= rsi[j]
+    
+    def __check_slope_short(self, i: int, j: int) -> bool:
+        if self.data[i].closing >= self.data[j].closing:
+            return False
+        slope = (self.data[j].closing - self.data[i].closing) / ((sum([candle.get_size() for candle in self.data[i + 1:j + 1]]) / (j - i)) * (j - i))
+        # debug_text('short slope: %/%', slope, self.config.get('min_slope'))
+        return slope > self.config.get('min_slope')
+
+    def __check_slope_long(self, i: int, j: int) -> bool:
+        if self.data[i].closing <= self.data[j].closing:
+            return False
+        slope = (self.data[i].closing - self.data[j].closing) / ((sum([candle.get_size() for candle in self.data[i + 1:j + 1]]) / (j - i)) * (j - i))
+        # debug_text('long slope: %/%', slope, self.config.get('min_slope'))
+        return slope > self.config.get('min_slope')
+
     def __short_signals(self, rsi: Any, threshold: float) -> List[Signal]:
         res = []
         over_boughts = OverBoughtCalculator().calculate(rsi, threshold=threshold, config=self.config)
@@ -76,7 +93,7 @@ class RsiDivergence(Indicator):
             for j in picks:
                 if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
-                if rsi[i] >= rsi[j] + 1.5:
+                if self.__check_rsi_short(rsi, i, j):
                     if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.UP):
                         continue
                     trendline = TrendCalculator(
@@ -87,7 +104,8 @@ class RsiDivergence(Indicator):
                     # trendline = UpperTrendCalculator(self.data, range(i, j + 1)).do("closing")
                     c1 = self.data[round(trendline.p1.x)]
                     c2 = self.data[round(trendline.p2.x)]
-                    if c1.closing + self.__average_candle_length(c1, c2) / 4 < c2.closing:
+                    if self.__check_slope_short(round(trendline.p1.x), round(trendline.p2.x)):
+                    # if c1.closing + self.__average_candle_length(c1, c2) / 4 < c2.closing:
                         # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
                         res.append(Signal(
                             name = self.name,
@@ -107,7 +125,7 @@ class RsiDivergence(Indicator):
             for j in picks:
                 if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
-                if rsi[i] + 1.5 <= rsi[j]:
+                if self.__check_rsi_long(rsi, i, j):
                     if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):
                         continue
                     trendline = TrendCalculator(
@@ -118,7 +136,9 @@ class RsiDivergence(Indicator):
                     # trendline = LowerTrendCalculator(self.data, range(i, j + 1)).do("closing")
                     c1 = self.data[round(trendline.p1.x)]
                     c2 = self.data[round(trendline.p2.x)]
-                    if c2.closing + self.__average_candle_length(c1, c2) / 4 < c1.closing:
+                    if self.__check_slope_long(round(trendline.p1.x), round(trendline.p2.x)):
+                    # if c2.closing + self.__average_candle_length(c1, c2) / 4 < c1.closing:
+                        # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
                         res.append(Signal(
                             name = self.name,
                             type = SignalTypes.LONG,
