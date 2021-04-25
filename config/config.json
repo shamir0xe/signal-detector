@@ -1,17 +1,19 @@
 {
-    "past_days": 333,
+    "past_days": 666,
     "signals": [
-        "rsi-divergence"
+        "rsi-divergence",
+        "rsi",
+        "stoch"
     ],
     "interval": "1hour",
-    "market": "btcusdt",
+    "market": "ethusdt",
     "indicators": {
         "rsi-divergence": {
             "max_pick_distance": 20,
-            "upperbound_threshold": 60,
+            "upperbound_threshold": 50,
             "lowerbound_threshold": 30,
-            "min_rsi_diff": 2.5,
-            "min_slope": 0.12
+            "min_rsi_diff": 1.0,
+            "min_slope": 0.15
         }
     },
     "delegators": {
@@ -23,7 +25,7 @@
     "helpers": {
         "price": {
             "price-calculator": {
-                "candle_margin": 3.5,
+                "candle_margin": 2,
                 "farthest_candle": 10
             }
         },
@@ -34,4 +36,3 @@
         }
     }
 }
-

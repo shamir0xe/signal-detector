@@ -10,6 +10,7 @@ from ..helpers.time.time_converter import TimeConverter
 from ..helpers.price.price_calculator import PriceCalculator
 from ..filters.trendlines_filter import TrendlinesFilter
 from ..models.price_types import PriceTypes
+from ..adapters.argument_data_adapter import ArgumentDataAdapter
 
 
 class App:
@@ -20,7 +21,7 @@ class App:
         self.data_fetcher = DataFetcher()
 
     def __init_variables(self) -> None:
-        self.out = self.data = self.market = self.interval = \
+        self.out = self.market = self.interval = \
         self.past_days = self.signals = self.pending_signals = None
 
     def apply_config(self) -> App:
@@ -36,11 +37,14 @@ class App:
         return self
 
     def fetch_data(self) -> App:
-        self.data = self.data_fetcher.fetch(
-            market=self.market,
-            interval=self.interval,
-            past_days=self.past_days
-        )
+        if hasattr(self, 'data'):
+            self.data = ArgumentDataAdapter.translate(self.data)
+        else:
+            self.data = self.data_fetcher.fetch(
+                market=self.market,
+                interval=self.interval,
+                past_days=self.past_days
+            )
         return self
 
     def detect_signals(self) -> App:
@@ -72,8 +76,9 @@ class App:
                 self.pending_signals.append(signal)
         return self
     
-    def print_indicators_summary(self) -> App:
+    def calculate_success_rate(self) -> App:
         res = {}
+        self.success_rate = {}
         for signal in self.out:
             if not signal.name in res:
                 res[signal.name] = {
@@ -83,10 +88,12 @@ class App:
                     -2: 0,
                 }
             res[signal.name][signal.status] += 1
-        # for signal_name in [*res]:
-        #     denominator = res[signal_name][+1] + res[signal_name][-1]
-        #     if denominator > 0.5:
-        #         debug_text('%: %', signal_name, 1. * res[signal_name][+1] / denominator)
+        for signal_name in [*res]:
+            denominator = res[signal_name][+1] + res[signal_name][-1]
+            self.success_rate[signal_name] = 0
+            if denominator > 0.5:
+                self.success_rate[signal_name] = 1. * res[signal_name][+1] / denominator
+                # debug_text('%: % ~~ win:% loss:%', signal_name, 1. * res[signal_name][+1] / denominator, res[signal_name][+1], res[signal_name][-1])
         return self
 
     def remove_duplicates(self) -> App:
@@ -109,6 +116,7 @@ class App:
         for signal in self.out:
             out.append({
                 'name': signal.name,
+                'success_rate': self.success_rate[signal.name],
                 'type': signal.type.name,
                 'time': signal.candle.time,
                 'market': self.market,
