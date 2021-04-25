@@ -3,6 +3,7 @@ from typing import Any, List
 from libs.PythonLibrary.utils import debug_text
 from ..adapters.coinex_adapter import CoinexAdapter
 from ..models.candle import Candle
+import time
 
 class DataFetcher:
     def __init__(self) -> None:
@@ -10,7 +11,11 @@ class DataFetcher:
 
     def fetch(self, market: str, interval: int, past_days: int) -> List[Candle]:
         response = UrlFetcher('candle_data', market, interval, past_days).fetch()
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except:
+            time.sleep(0.2)
+            return self.fetch(market, interval, past_days)
         data = response.json()['data']
         res = []
         for candle_info in data:
