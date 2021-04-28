@@ -41,7 +41,7 @@
             }
         }
     },
-    "past_days": 666,
+    "past_days": 333,
     "signals": [
         "rsi-divergence", "rsi", "stoch"
     ],
