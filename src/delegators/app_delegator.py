@@ -142,6 +142,8 @@ class App:
                 }
             })
         print(json.dumps(out))
+        if hasattr(self, 'show-summary'):
+            self.print_summary()
         # for signal in self.out:
         #     debug_text(
         #         '%/% - t:% - o:%, %', 
