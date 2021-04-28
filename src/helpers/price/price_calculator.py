@@ -32,39 +32,41 @@ class PriceCalculator:
         return sum([self.data[i].get_size() for i in range(start, index + 1)]) / (index + 1 - start)
 
     def __short_price(self, price_type: PriceTypes) -> float:
-        candle_size = self.__average_candle_size()
+        # candle_size = self.__average_candle_size()
         trendline_height = TrendlineDelegator(self.signal, self.data).uptrend().get_trendline_hegiht()
         if price_type is PriceTypes.ENTRY_PRICE:
             return self.signal.candle.closing
         if price_type is PriceTypes.SELL_PRICE:
             # return self.signal.candle.closing - candle_size * self.config.get('candle_margin') 
-            return max(
-                self.signal.candle.closing - candle_size * self.config.get('candle_margin'), 
-                self.signal.candle.closing - trendline_height / 2
+            return min(
+                self.signal.candle.closing - trendline_height * self.config.get('tp-coeff'),
+                self.signal.candle.closing * (1 - self.config.get('win-percent'))
             )
+            
         if price_type is PriceTypes.STOP_LOSS:
             # return self.signal.candle.closing + candle_size * self.config.get('candle_margin')
             return max(
-                self.signal.candle.closing + candle_size * self.config.get('candle_margin'),
-                self.signal.candle.closing + trendline_height / 2
+                self.signal.candle.closing + trendline_height * self.config.get('sl-coeff'),
+                self.signal.candle.closing * (1 + 2 * self.config.get('win-percent'))
             )
         return 0
     
     def __long_price(self, price_type: PriceTypes) -> float:
-        candle_size = self.__average_candle_size()
+        # candle_size = self.__average_candle_size()
         trendline_height = TrendlineDelegator(self.signal, self.data).downtrend().get_trendline_hegiht()
         if price_type is PriceTypes.ENTRY_PRICE:
             return self.signal.candle.closing
         if price_type is PriceTypes.SELL_PRICE:
             # return self.signal.candle.closing + candle_size * self.config.get('candle_margin') 
-            return min(
-                self.signal.candle.closing + candle_size * self.config.get('candle_margin'),
-                self.signal.candle.closing + trendline_height / 2
+            return max(
+                self.signal.candle.closing + trendline_height * self.config.get('tp-coeff'),
+                self.signal.candle.closing * (1 + self.config.get('win-percent'))
             )
+            
         if price_type is PriceTypes.STOP_LOSS:
             # return self.signal.candle.closing - candle_size * self.config.get('candle_margin')
             return min(
-                self.signal.candle.closing - candle_size * self.config.get('candle_margin'),
-                self.signal.candle.closing + trendline_height / 2
+                self.signal.candle.closing - trendline_height * self.config.get('sl-coeff'),
+                self.signal.candle.closing * (1 - 2 * self.config.get('win-percent'))
             )
         return 0

@@ -29,7 +29,10 @@
         "price": {
             "price-calculator": {
                 "candle_margin": 2,
-                "farthest_candle": 10
+                "farthest_candle": 10,
+                "tp-coeff": 0.2,
+                "sl-coeff": 0.5,
+                "win-percent": 0.05
             }
         },
         "signal": {

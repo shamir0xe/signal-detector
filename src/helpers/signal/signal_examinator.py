@@ -28,11 +28,11 @@ class SignalExaminator:
         while index < len(data):
             if index - signal.index > self.config.get('signal_life'):
                 return -2
-            if data[index].closing < stop_limit:
+            if data[index].highest > profit_point:
+                return +1
+            if data[index].lowest < stop_limit:
                 # debug_text('watafak, index: %, time: %', index, TimeConverter.seconds_to_timestamp(data[index].time))
                 return -1
-            if data[index].closing > profit_point:
-                return +1
             index += 1
         return 0
 
@@ -44,10 +44,10 @@ class SignalExaminator:
         while (index < len(data)):
             if index - signal.index > self.config.get('signal_life'):
                 return -2
-            if data[index].closing > stop_limit:
+            if data[index].lowest < profit_point:
+                return +1
+            if data[index].highest > stop_limit:
                 # debug_text('watafak, index: %, time: %', index, TimeConverter.seconds_to_timestamp(data[index].time))
                 return -1
-            if data[index].closing < profit_point:
-                return +1
             index += 1
         return 0
