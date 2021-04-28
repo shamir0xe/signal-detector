@@ -91,7 +91,7 @@ class RsiDivergence(Indicator):
         picks = self.__high_picks(over_boughts, rsi)
         for i in picks:
             for j in picks:
-                if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
+                if i > j - 1 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
                 if self.__check_rsi_short(rsi, i, j):
                     if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.UP):
@@ -123,7 +123,7 @@ class RsiDivergence(Indicator):
         picks = self.__low_picks(over_sold, rsi)
         for i in picks:
             for j in picks:
-                if i > j - 2 or abs(i - j) > self.config.get('max_pick_distance'):
+                if i > j - 1 or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
                 if self.__check_rsi_long(rsi, i, j):
                     if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):

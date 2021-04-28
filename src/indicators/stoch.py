@@ -1,5 +1,6 @@
 from typing import Any, Dict, List
 
+
 from .indicator_abstract import Indicator
 from ..models.signal import Signal
 from ..models.candle import Candle
@@ -8,6 +9,7 @@ from libs.PythonLibrary.utils import debug_text
 from ..helpers.indicators.stoch_calculator import StochCalculator
 from ..helpers.chart.overbought_calculator import OverBoughtCalculator
 from ..helpers.chart.oversold_calculator import OverSoldCalculator
+from ..helpers.config.config_reader import ConfigReader
 
 
 class Stoch(Indicator):
@@ -17,20 +19,16 @@ class Stoch(Indicator):
         self.config = self.__read_config()
 
     def __read_config(self) -> Dict:
-        return {
-            'upperbound_threshold': 80,
-            'lowerbound_threshold': 20,
-            'window': 14
-        }
+        return ConfigReader('indicators.stoch')
     
     def get_signals(self) -> List[Signal]:
         res = []
         stoch = StochCalculator(self.data, self.config).calculate()
 
-        up_threshold = self.config.get('upperbound_threshold', 80)
+        up_threshold = self.config.get('upperbound_threshold')
         res = [*res, *self.__short_signals(stoch, up_threshold)]
 
-        lo_threshold = self.config.get('lowerbound_threshold', 20)
+        lo_threshold = self.config.get('lowerbound_threshold')
         res = [*res, *self.__long_signals(stoch, lo_threshold)]
         return res
     
@@ -38,9 +36,9 @@ class Stoch(Indicator):
         res = []
         over_boughts = OverBoughtCalculator().calculate(stoch, threshold=threshold, config=self.config)
         for region in over_boughts:
-            index = region[-1] + 1
-            if index >= len(self.data):
-                continue
+            index = region[-1]
+            # if index >= len(self.data):
+                # continue
             res.append(Signal(
                 name = self.name, 
                 type = SignalTypes.SHORT,
@@ -54,9 +52,9 @@ class Stoch(Indicator):
         res = []
         over_boughts = OverSoldCalculator().calculate(stoch, threshold=threshold, config=self.config)
         for region in over_boughts:
-            index = region[-1] + 1
-            if index >= len(self.data):
-                continue
+            index = region[-1]
+            # if index >= len(self.data):
+                # continue
             res.append(Signal(
                 name = self.name, 
                 type = SignalTypes.LONG,

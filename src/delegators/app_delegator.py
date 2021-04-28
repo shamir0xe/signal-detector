@@ -93,7 +93,21 @@ class App:
             self.success_rate[signal_name] = 0
             if denominator > 0.5:
                 self.success_rate[signal_name] = 1. * res[signal_name][+1] / denominator
-                # debug_text('%: % ~~ win:% loss:%', signal_name, 1. * res[signal_name][+1] / denominator, res[signal_name][+1], res[signal_name][-1])
+        return self
+    
+    def print_summary(self) -> App:
+        res = {}
+        for signal in self.out:
+            if not signal.name in res:
+                res[signal.name] = {
+                    +1: 0,
+                    -1: 0,
+                    0: 0,
+                    -2: 0,
+                }
+            res[signal.name][signal.status] += 1
+        for signal_name in [*self.success_rate]:
+            debug_text('%: % ~~ win:% loss:%', signal_name, self.success_rate[signal_name], res[signal_name][+1], res[signal_name][-1])
         return self
 
     def remove_duplicates(self) -> App:

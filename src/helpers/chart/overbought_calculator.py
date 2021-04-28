@@ -5,7 +5,7 @@ class OverBoughtCalculator:
     @staticmethod
     def calculate(data: Any, threshold: float, config: Dict) -> List[List[int]]:
         res = []
-        index = config.get('window', 14)
+        index = config.get('window')
         while index < len(data):
             while index < len(data) and data[index] < threshold:
                 index += 1

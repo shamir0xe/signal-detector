@@ -1,5 +1,7 @@
 from typing import Any, Dict, List
 
+from ..helpers.config.config_reader import ConfigReader
+
 from .indicator_abstract import Indicator
 from ..models.signal import Signal
 from ..models.candle import Candle
@@ -17,16 +19,16 @@ class Rsi(Indicator):
         self.config = self.__read_config()
 
     def __read_config(self) -> Dict:
-        return {}
+        return ConfigReader('indicators.rsi')
     
     def get_signals(self) -> List[Signal]:
         res = []
         rsi = RsiCalculator(self.data, self.config).calculate()
 
-        up_threshold = self.config.get('upperbound_threshold', 70)
+        up_threshold = self.config.get('upperbound_threshold')
         res = [*res, *self.__short_signals(rsi, up_threshold)]
 
-        lo_threshold = self.config.get('lowerbound_threshold', 30)
+        lo_threshold = self.config.get('lowerbound_threshold')
         res = [*res, *self.__long_signals(rsi, lo_threshold)]
         return res
     
@@ -34,7 +36,7 @@ class Rsi(Indicator):
         res = []
         over_boughts = OverBoughtCalculator().calculate(rsi, threshold=threshold, config=self.config)
         for region in over_boughts:
-            for index in region:
+            for index in region[-1:]:
                 res.append(Signal(
                     name = self.name, 
                     type = SignalTypes.SHORT,
@@ -48,7 +50,7 @@ class Rsi(Indicator):
         res = []
         over_boughts = OverSoldCalculator().calculate(rsi, threshold=threshold, config=self.config)
         for region in over_boughts:
-            for index in region:
+            for index in region[-1:]:
                 res.append(Signal(
                     name = self.name, 
                     type = SignalTypes.LONG,
