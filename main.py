@@ -16,7 +16,7 @@ def main():
     .examining_signals() \
     .calculate_success_rate() \
     .print_results() \
-    .print_summary() \
+    # .print_summary() \
 
 if __name__ == '__main__':
     main()
