@@ -11,11 +11,13 @@ from ..helpers.price.price_calculator import PriceCalculator
 from ..filters.trendlines_filter import TrendlinesFilter
 from ..models.price_types import PriceTypes
 from ..adapters.argument_data_adapter import ArgumentDataAdapter
+from libs.PythonLibrary.utils import Timer
 
 
 class App:
     def __init__(self) -> None:
         self.__init_variables()
+        self.timer = Timer()
         self.config = Config()
         self.arguments = ArgumentDelegator()
         self.data_fetcher = DataFetcher()
@@ -144,6 +146,7 @@ class App:
         print(json.dumps(out))
         if hasattr(self, 'show-summary'):
             self.print_summary()
+            self.timer.time_stamp()
         # for signal in self.out:
         #     debug_text(
         #         '%/% - t:% - o:%, %', 
