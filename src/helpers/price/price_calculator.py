@@ -47,7 +47,7 @@ class PriceCalculator:
             # return self.signal.candle.closing + candle_size * self.config.get('candle_margin')
             return max(
                 self.signal.candle.closing + trendline_height * self.config.get('sl-coeff'),
-                self.signal.candle.closing * (1 + 1.5 * self.config.get('win-percent'))
+                self.signal.candle.closing * (1 + self.config.get('win-percent'))
             )
         return 0
     
@@ -67,6 +67,6 @@ class PriceCalculator:
             # return self.signal.candle.closing - candle_size * self.config.get('candle_margin')
             return min(
                 self.signal.candle.closing - trendline_height * self.config.get('sl-coeff'),
-                self.signal.candle.closing * (1 - 1.5 * self.config.get('win-percent'))
+                self.signal.candle.closing * (1 - self.config.get('win-percent'))
             )
         return 0

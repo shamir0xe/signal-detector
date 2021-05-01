@@ -132,7 +132,7 @@ class App:
         for signal in self.out:
             out.append({
                 'name': signal.name,
-                'success_rate': self.success_rate[signal.name],
+                'success_rate': 1,
                 'type': signal.type.name,
                 'time': signal.candle.time,
                 'market': self.market,
