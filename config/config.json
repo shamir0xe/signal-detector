@@ -44,8 +44,7 @@
     "past_days": 111,
     "signals": [
         "rsi-divergence",
-        "rsi",
-        "stoch"
+        "rsi"
     ],
     "interval": "1hour",
     "market": "btcusdt"
