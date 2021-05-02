@@ -41,7 +41,7 @@
             }
         }
     },
-    "past_days": 222,
+    "past_days": 111,
     "signals": [
         "rsi-divergence",
         "rsi",
