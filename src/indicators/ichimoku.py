@@ -45,10 +45,10 @@ class Ichimoku(Indicator):
     def __add_limits(self) -> List[Signal]:
         for signal in self.signals:
             if signal.type is SignalTypes.LONG:
-                delta = min(
-                    self.data[signal.index].closing - self.lines[signal.index - self.medium_window]['cloud-bottom'],
+                delta = (
+                    self.data[signal.index].closing - self.lines[signal.index - self.medium_window]['cloud-bottom'] + \
                     math.fabs(self.data[signal.index].closing - self.lines[signal.index]['base'])
-                )
+                ) / 2
                 signal.stop_loss = self.data[signal.index].closing - delta 
                 signal.take_profit = self.data[signal.index].closing + self.config.get('win-multiplier') * delta
         return self.signals
@@ -72,19 +72,12 @@ class Ichimoku(Indicator):
         bl &= self.lines[index]['conversion'] > self.lines[index]['base']
         bl &= self.lines[index]['cloud-green'] > self.lines[index]['cloud-red']
         bl &= self.data[index].closing > self.lines[index - 2 * self.medium_window]['cloud-top']
-        return bl
-        if bl:
-            bl &= VolumeOscilatorConfirmator(self.data[:index + 1], {
-                "min-volume-threshold": self.config.get("volume.min-volume-threshold"),
-                "window-slow": self.config.get('volume.window-slow'),
-                "window-fast": self.config.get('volume.window-fast')
-            }).do(TrendTypes.UP)
         # if bl:
         #     debug_text('MANN time: %', TimeConverter.seconds_to_timestamp(self.data[index].time))
-            # debug_text('data.closing = %', self.data[index].closing)
-            # debug_text('cloud-green = %', self.lines[index - self.medium_window]['cloud-green'])
-            # debug_text('cloud-red = %', self.lines[index - self.medium_window]['cloud-red'])
-            # debug_text('conversion/base: % / %', self.lines[index]['conversion'], self.lines[index]['base'])
+        #     debug_text('data.closing = %', self.data[index].closing)
+        #     debug_text('cloud-green = %', self.lines[index - self.medium_window]['cloud-green'])
+        #     debug_text('cloud-red = %', self.lines[index - self.medium_window]['cloud-red'])
+        #     debug_text('conversion/base: % / %', self.lines[index]['conversion'], self.lines[index]['base'])
             # debug_text('self.lines: %', self.lines)
             # debug_text('top-line = %', self.lines[index - self.medium_window]['cloud-top'])
         return bl
