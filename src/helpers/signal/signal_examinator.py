@@ -30,11 +30,11 @@ class SignalExaminator:
         while index < len(data):
             if data[index].lowest < stop_limit:
                 status = SignalStatuses.FAILED
-                gain = self.__do_math(data[index].lowest, signal.candle.openning)
+                gain = self.__do_math(stop_limit, signal.candle.openning)
                 break
             if data[index].highest > profit_point:
                 status = SignalStatuses.DONE
-                gain = self.__do_math(data[index].highest, signal.candle.openning)
+                gain = self.__do_math(profit_point, signal.candle.openning)
                 break
             if index - signal.index > self.config.get('signal_life'):
                 status = SignalStatuses.DUMPED
@@ -55,11 +55,11 @@ class SignalExaminator:
         while (index < len(data)):
             if data[index].highest > stop_limit:
                 status = SignalStatuses.FAILED
-                gain = self.__do_math(signal.candle.openning, data[index].highest)
+                gain = self.__do_math(signal.candle.openning, stop_limit)
                 break
             if data[index].lowest < profit_point:
                 status = SignalStatuses.DONE
-                gain = self.__do_math(signal.candle.openning, data[index].lowest)
+                gain = self.__do_math(signal.candle.openning, profit_point)
                 break
             if index - signal.index > self.config.get('signal_life'):
                 status = SignalStatuses.DUMPED

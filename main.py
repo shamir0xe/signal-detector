@@ -6,8 +6,8 @@ sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, '..')))
 from SignalDetector.src.delegators.app_delegator import App
 
 def main():
-    app = App()
-    app.apply_config() \
+    App() \
+    .apply_config() \
     .apply_arguments() \
     .fetch_data() \
     .detect_signals() \
