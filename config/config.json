@@ -58,7 +58,7 @@
             "win-percent": 0.05 
         }
     },
-    "past_days": 99,
+    "past_days": 222,
     "signals": [
         "ichimoku"
     ],
