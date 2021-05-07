@@ -15,8 +15,7 @@ def main():
     .remove_duplicates() \
     .examining_signals() \
     .calculate_success_rate() \
-    .print_results() \
-    # .print_summary() \
+    .print_results()
 
 if __name__ == '__main__':
     main()

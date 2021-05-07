@@ -40,7 +40,6 @@ class Rsi(Indicator):
                 res.append(Signal(
                     name = self.name, 
                     type = SignalTypes.SHORT,
-                    strength = rsi[index] - threshold,
                     candle = self.data[index],
                     index = index
                 ))
@@ -54,7 +53,6 @@ class Rsi(Indicator):
                 res.append(Signal(
                     name = self.name, 
                     type = SignalTypes.LONG,
-                    strength = threshold - rsi[index],
                     candle = self.data[index],
                     index = index
                 ))

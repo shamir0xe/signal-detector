@@ -1,6 +1,8 @@
 from __future__ import annotations
 from libs.PythonLibrary.utils import debug_text
 import json
+
+from src.models.signal_statuses import SignalStatuses
 from .argument_delegator import ArgumentDelegator
 from .signal_delegator import SignalDelegator
 from ..handlers.config_handler import Config
@@ -12,6 +14,7 @@ from ..filters.trendlines_filter import TrendlinesFilter
 from ..models.price_types import PriceTypes
 from ..adapters.argument_data_adapter import ArgumentDataAdapter
 from libs.PythonLibrary.utils import Timer
+from src.helpers.database.candle_retriever import CandleRetriever
 
 
 class App:
@@ -39,7 +42,14 @@ class App:
         return self
 
     def fetch_data(self) -> App:
-        if hasattr(self, 'data'):
+        if hasattr(self, 'memory'):
+            self.data = CandleRetriever.find(
+                market = self.market,
+                interval = self.interval,
+                start_time = getattr(self, "start-time", 0),
+                end_time = getattr(self, "end-time", 1e15),
+            )
+        elif hasattr(self, 'data'):
             self.data = ArgumentDataAdapter.translate(self.data)
         else:
             self.data = self.data_fetcher.fetch(
@@ -57,25 +67,29 @@ class App:
         return self
 
     def examining_signals(self) -> App:
+        if hasattr(self, 'no-examin'):
+            return self
         for signal in self.out:
-            signal.set_status(SignalExaminator().do(signal, self.data))
+            exam_result = SignalExaminator().do(signal, self.data)
+            signal.set_status(exam_result["status"])
+            signal.set_gain(exam_result["gain"])
         return self
     
     def filter_trendlines(self) -> App:
-        signals = self.out
-        self.out = []
-        self.pending_signals = []
-        for signal in signals:
-            index = TrendlinesFilter().validate(signal, self.data)
-            # debug_text('%, t:%, validation result: %', signal.type, TimeConverter.seconds_to_timestamp(signal.candle.time),index)
-            if index > 0:
-                signal.original_candle = signal.candle
-                signal.candle = self.data[index]
-                signal.index = index
-                # debug_text('tt:%', TimeConverter.seconds_to_timestamp(signal.candle.time))
-                self.out.append(signal)
-            elif index == 0:
-                self.pending_signals.append(signal)
+        # signals = self.out
+        # self.out = []
+        # self.pending_signals = []
+        # for signal in signals:
+        #     index = TrendlinesFilter().validate(signal, self.data)
+        #     # debug_text('%, t:%, validation result: %', signal.type, TimeConverter.seconds_to_timestamp(signal.candle.time),index)
+        #     if index > 0:
+        #         signal.original_candle = signal.candle
+        #         signal.candle = self.data[index]
+        #         signal.index = index
+        #         # debug_text('tt:%', TimeConverter.seconds_to_timestamp(signal.candle.time))
+        #         self.out.append(signal)
+        #     elif index == 0:
+        #         self.pending_signals.append(signal)
         return self
     
     def calculate_success_rate(self) -> App:
@@ -89,7 +103,7 @@ class App:
                     0: 0,
                     -2: 0,
                 }
-            res[signal.name][signal.status] += 1
+            res[signal.name][signal.status.value] += 1
         for signal_name in [*res]:
             denominator = res[signal_name][+1] + res[signal_name][-1]
             self.success_rate[signal_name] = 0
@@ -106,10 +120,12 @@ class App:
                     -1: 0,
                     0: 0,
                     -2: 0,
+                    "gain": 0
                 }
-            res[signal.name][signal.status] += 1
+            res[signal.name][signal.status.value] += 1
+            res[signal.name]["gain"] += signal.gain
         for signal_name in [*self.success_rate]:
-            debug_text('%: % ~~ win:% loss:%', signal_name, self.success_rate[signal_name], res[signal_name][+1], res[signal_name][-1])
+            debug_text('%: % ~~ win:% loss:%', signal_name, res[signal_name]["gain"], res[signal_name][+1], res[signal_name][-1])
         return self
 
     def remove_duplicates(self) -> App:
@@ -136,25 +152,21 @@ class App:
                 'type': signal.type.name,
                 'time': signal.candle.time,
                 'market': self.market,
-                'status': 'OK' if signal.status == +1 else 'Failed' if signal.status == -1 else 'Pending' if signal.status == 0 else 'Dumped',
+                'gain': signal.gain,
+                'status': 'OK' if signal.status is SignalStatuses.DONE
+                 else 'Failed' if signal.status is SignalStatuses.FAILED 
+                 else 'Pending' if signal.status is SignalStatuses.PENDING else 'Dumped',
                 'details': {
-                    'entry_price': PriceCalculator(self.data, signal).do(PriceTypes.ENTRY_PRICE),
-                    'take_profit': PriceCalculator(self.data, signal).do(PriceTypes.SELL_PRICE),
-                    'stop_loss': PriceCalculator(self.data, signal).do(PriceTypes.STOP_LOSS),
+                    'entry_price': signal.candle.closing,
+                    'take_profit': signal.take_profit,
+                    'stop_loss': signal.stop_loss,
                 }
             })
         print(json.dumps(out))
         if hasattr(self, 'show-summary'):
+            for signal in self.out:
+
+                debug_text('time: %, gain: {}{:03f}, status: %'.format('+' if signal.gain > 0 else '', signal.gain), TimeConverter.seconds_to_timestamp(signal.candle.time), signal.status)
             self.print_summary()
             self.timer.time_stamp()
-        # for signal in self.out:
-        #     debug_text(
-        #         '%/% - t:% - o:%, %', 
-        #         signal.name, 
-        #         signal.type, 
-        #         TimeConverter.seconds_to_timestamp(signal.candle.time), 
-        #         TimeConverter.seconds_to_timestamp(signal.original_candle.time) if not signal.original_candle is None else None, 
-        #         'OK' if signal.status == +1 else 'Failed' if signal.status == -1 else 'Pending' if signal.status == 0 else 'Dumped'
-        #     )
         return self
-

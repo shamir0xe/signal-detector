@@ -5,18 +5,30 @@
             "upperbound_threshold": 60,
             "lowerbound_threshold": 40,
             "min_rsi_diff": 1.5,
-            "min_slope": 0.12,
+            "min_slope": 0.09,
             "window": 15
         },
         "rsi": {
             "window": 15,
-            "upperbound_threshold": 80,
+            "upperbound_threshold": 70,
             "lowerbound_threshold": 30
         },
         "stoch": {
             "window": 10,
-            "upperbound_threshold": 95,
-            "lowerbound_threshold": 45
+            "upperbound_threshold": 80,
+            "lowerbound_threshold": 20
+        },
+        "ichimoku": {
+            "win-multiplier": 2,
+            "offset": 52,
+            "window1": 9,
+            "window2": 26,
+            "window3": 52,
+            "volume": {
+                "min-volume-threshold": 10,
+                "window-slow": 20,
+                "window-fast": 5 
+            }
         }
     },
     "delegators": {
@@ -30,21 +42,25 @@
             "price-calculator": {
                 "candle_margin": 2,
                 "farthest_candle": 10,
-                "tp-coeff": 0.2,
+                "tp-coeff": 0.4,
                 "sl-coeff": 0.2,
-                "win-percent": 0.05
+                "win-percent": 0.1
             }
         },
         "signal": {
             "signal-examinator": {
-                "signal_life": 25
+                "signal_life": 24
             }
         }
     },
-    "past_days": 111,
+    "models": {
+        "signal": {
+            "win-percent": 0.05 
+        }
+    },
+    "past_days": 99,
     "signals": [
-        "rsi-divergence",
-        "rsi"
+        "ichimoku"
     ],
     "interval": "1hour",
     "market": "btcusdt"

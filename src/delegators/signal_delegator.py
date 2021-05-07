@@ -6,6 +6,7 @@ from ..indicators.rsi import Rsi
 from ..indicators.stoch import Stoch
 from ..indicators.stoch_rsi import StochRsi
 from ..indicators.rsi_divergence import RsiDivergence
+from ..indicators.ichimoku import Ichimoku
 
 
 class SignalDelegator:
@@ -22,6 +23,8 @@ class SignalDelegator:
             self.signals = [*self.signals, *RsiDivergence(self.data).get_signals()]
         elif signal_name == 'stoch-rsi':
             self.signals = [*self.signals, *StochRsi(self.data).get_signals()]
+        elif signal_name == 'ichimoku':
+            self.signals = [*self.signals, *Ichimoku(self.data).get_signals()]
 
     def get_signals(self) -> List[Signal]:
         return self.signals

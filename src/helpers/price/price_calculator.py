@@ -39,15 +39,17 @@ class PriceCalculator:
         if price_type is PriceTypes.SELL_PRICE:
             # return self.signal.candle.closing - candle_size * self.config.get('candle_margin') 
             return min(
-                self.signal.candle.closing - trendline_height * self.config.get('tp-coeff'),
+                # self.signal.candle.closing - trendline_height * self.config.get('tp-coeff'),
+                1e10,
                 self.signal.candle.closing * (1 - self.config.get('win-percent'))
             )
             
         if price_type is PriceTypes.STOP_LOSS:
             # return self.signal.candle.closing + candle_size * self.config.get('candle_margin')
             return max(
-                self.signal.candle.closing + trendline_height * self.config.get('sl-coeff'),
-                self.signal.candle.closing * (1 + self.config.get('win-percent'))
+                # self.signal.candle.closing + 0.5 * trendline_height * self.config.get('sl-coeff'),
+                -1,
+                self.signal.candle.closing * (1 + 0.5 * self.config.get('win-percent'))
             )
         return 0
     
@@ -59,14 +61,16 @@ class PriceCalculator:
         if price_type is PriceTypes.SELL_PRICE:
             # return self.signal.candle.closing + candle_size * self.config.get('candle_margin') 
             return max(
-                self.signal.candle.closing + trendline_height * self.config.get('tp-coeff'),
+                # self.signal.candle.closing + trendline_height * self.config.get('tp-coeff'),
+                -1,
                 self.signal.candle.closing * (1 + self.config.get('win-percent'))
             )
             
         if price_type is PriceTypes.STOP_LOSS:
             # return self.signal.candle.closing - candle_size * self.config.get('candle_margin')
             return min(
-                self.signal.candle.closing - trendline_height * self.config.get('sl-coeff'),
-                self.signal.candle.closing * (1 - self.config.get('win-percent'))
+                # self.signal.candle.closing - 0.5 * trendline_height * self.config.get('sl-coeff'),
+                1e10,
+                self.signal.candle.closing * (1 - 0.5 * self.config.get('win-percent'))
             )
         return 0
