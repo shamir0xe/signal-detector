@@ -1,6 +1,8 @@
 import math
 
 from typing import Any, Dict, List
+
+from src.helpers.chart.atr_calculator import ATRCalculator
 from ..models.trend_types import TrendTypes
 from .indicator_abstract import Indicator
 from ..models.signal import Signal
@@ -32,7 +34,7 @@ class RsiDivergence(Indicator):
         rsi = RsiCalculator(self.data, self.config).calculate()
 
         up_threshold = self.config.get('upperbound_threshold')
-        res = [*res, *self.__short_signals(rsi, up_threshold)]
+        # res = [*res, *self.__short_signals(rsi, up_threshold)]
 
         lo_threshold = self.config.get('lowerbound_threshold')
         res = [*res, *self.__long_signals(rsi, lo_threshold)]
@@ -139,12 +141,21 @@ class RsiDivergence(Indicator):
                     if self.__check_slope_long(round(trendline.p1.x), round(trendline.p2.x)):
                     # if c2.closing + self.__average_candle_length(c1, c2) / 4 < c1.closing:
                         # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
+                        delta = ATRCalculator(self.data[:j + 1], {
+                            'window': self.config.get('stoploss.window'),
+                        }).do()[-1] * self.config.get('stoploss.multiplier')
                         res.append(Signal(
                             name = self.name,
                             type = SignalTypes.LONG,
-                            strength = 0,
                             candle = self.data[j],
                             index = j,
+                            take_profit=self.data[j].closing + self.config.get('take-profit.multiplier') * delta,
+                            stop_loss=self.data[j].lowest - delta
                         ))
+                        # except:
+                        #     debug_text('i, j -> (%, %)', i, j)
+                        #     for candle in self.data[:j + 1]:
+                        #         debug_text('    ~~~candle: %', candle)
+                        
         return res
 

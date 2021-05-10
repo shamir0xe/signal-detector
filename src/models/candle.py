@@ -12,7 +12,7 @@ class Candle:
         lowest: float,
         volume: float,
         amount: float,
-        market: str
+        market: str = 'unknown'
     ) -> None:
         self.time = int(time)
         self.openning = float(openning)

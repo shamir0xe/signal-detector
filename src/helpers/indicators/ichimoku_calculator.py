@@ -27,6 +27,10 @@ class IchimokuCalculator:
         res['conversion'] = ichimoku.ichimoku_conversion_line().to_numpy().tolist()
         # debug_text('conversion: %', ichimoku.ichimoku_conversion_line())
         res['base'] = ichimoku.ichimoku_base_line().to_numpy().tolist()
+        # res['ema'] = ta.trend.EMAIndicator(
+        #     close=pd.Series([float(candle.closing) for candle in self.data]),
+        #     window=self.config.get('ema.window'),
+        # ).ema_indicator()
         # for item in [*res]:
         #     debug_text('item[%] = % %', item, len(res[item]), res[item])
         array = []
@@ -38,5 +42,6 @@ class IchimokuCalculator:
                 'cloud-bottom': res['cloud-bottom'][i],
                 'conversion': res['conversion'][i],
                 'base': res['base'][i],
+                # 'ema': res['ema'][i]
             })
         return array
