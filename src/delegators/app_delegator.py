@@ -2,17 +2,18 @@ from __future__ import annotations
 from libs.PythonLibrary.utils import debug_text
 import json
 
-from src.models.signal_statuses import SignalStatuses
 from .argument_delegator import ArgumentDelegator
 from .signal_delegator import SignalDelegator
-from ..handlers.config_handler import Config
-from ..handlers.data_handler import DataFetcher
-from ..helpers.signal.signal_examinator import SignalExaminator
-from ..helpers.time.time_converter import TimeConverter
-from ..helpers.price.price_calculator import PriceCalculator
-from ..filters.trendlines_filter import TrendlinesFilter
-from ..models.price_types import PriceTypes
-from ..adapters.argument_data_adapter import ArgumentDataAdapter
+from src.helpers.time.candle_to_timestamp import CandleToTimestamp
+from src.models.signal_statuses import SignalStatuses
+from src.handlers.config_handler import Config
+from src.handlers.data_handler import DataFetcher
+from src.helpers.signal.signal_examinator import SignalExaminator
+from src.helpers.time.time_converter import TimeConverter
+from src.helpers.price.price_calculator import PriceCalculator
+from src.filters.trendlines_filter import TrendlinesFilter
+from src.models.price_types import PriceTypes
+from src.adapters.argument_data_adapter import ArgumentDataAdapter
 from libs.PythonLibrary.utils import Timer
 from src.helpers.database.candle_retriever import CandleRetriever
 
@@ -43,11 +44,13 @@ class App:
 
     def fetch_data(self) -> App:
         if hasattr(self, 'memory'):
+            self.market = self.market.lower()
+            start_time, end_time = CandleToTimestamp.do(self.interval, (-self.past_days + 1, +1))
             self.data = CandleRetriever.find(
                 market = self.market,
                 interval = self.interval,
-                start_time = getattr(self, "start-time", 0),
-                end_time = getattr(self, "end-time", 1e15),
+                start_time = start_time,
+                end_time = end_time,
             )
         elif hasattr(self, 'data'):
             self.data = ArgumentDataAdapter.translate(self.data)
