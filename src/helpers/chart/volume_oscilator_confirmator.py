@@ -12,7 +12,7 @@ import pandas as pd
 class VolumeOscilatorConfirmator:
     def __init__(self, data: List[Candle], config: Dict) -> None:
         self.config = config
-        self.data = data[self.__start_index(data, 2 * self.config.get('window-slow')):]
+        self.data = data[self.__start_index(len(data)):]
 
     def do(self, trend: TrendTypes) -> bool:
         volume_oscilator = ta.momentum.PercentageVolumeOscillator(
@@ -22,7 +22,7 @@ class VolumeOscilatorConfirmator:
         ).pvo().to_numpy().tolist()
         bounds = ConvexBound([
             Geometry.Point(i, volume_oscilator[i]) for i in 
-            range(self.__start_index(self.data, self.config.get('window-fast')), len(volume_oscilator))]).do(trend)
+            range(len(volume_oscilator) - 4, len(volume_oscilator))]).do(trend)
         bounds = bounds[::-1]
         
         bl = True
@@ -30,7 +30,7 @@ class VolumeOscilatorConfirmator:
         bl &= bounds[-1].y > 1e-3 + bounds[-2].y
 
 
-        # if "14:30" in TimeConverter.seconds_to_timestamp(self.data[-1].time):
+        # if "05/04" in TimeConverter.seconds_to_timestamp(self.data[-1].time):
         #     debug_text('~~time: %', TimeConverter.seconds_to_timestamp(self.data[-1].time))
         #     debug_text('~~bounds[-1, -2]: %, %', bounds[-1].y, bounds[-2].y)
         #     debug_text('~~bounds[-1].y > 1e-3 + self.config.get("min-volume-threshold") ? %', bounds[-1].y > 1e-3 + self.config.get('min-volume-threshold'))
@@ -41,8 +41,8 @@ class VolumeOscilatorConfirmator:
 
         return bl
 
-    def __start_index(self, data: List[Candle], offset: int):
+    def __start_index(self, length: int):
         return max(
             0,
-            len(data) - offset
+            length - 2 * self.config.get('window-slow')
         )

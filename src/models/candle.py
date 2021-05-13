@@ -1,6 +1,6 @@
 import math
 from typing import Any
-from ..helpers.time.time_converter import TimeConverter
+from src.helpers.time.time_converter import TimeConverter
 
 class Candle:
     def __init__(

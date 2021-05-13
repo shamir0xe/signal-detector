@@ -1,8 +1,6 @@
 from typing import List
 import json
-
-from ..models.candle import Candle
-
+from src.models.candle import Candle
 
 class ArgumentDataAdapter:
     @staticmethod

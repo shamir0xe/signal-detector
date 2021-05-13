@@ -3,17 +3,16 @@ import math
 
 from numpy.core.defchararray import index
 from libs.PythonLibrary.utils import debug_text
+from libs.PythonLibrary.geometry import Geometry
 from math import fabs
 from typing import Dict, List
-
-from ..models.trend_types import TrendTypes
-from ..models.signal_types import SignalTypes
-from ..models.signal import Signal
-from ..models.candle import Candle
-from libs.PythonLibrary.geometry import Geometry
-from ..helpers.geometry.show_plot import ShowGeometryPlot
-from ..helpers.trend.trend_calculator import TrendCalculator
-from ..helpers.config.config_reader import ConfigReader
+from src.models.trend_types import TrendTypes
+from src.models.signal_types import SignalTypes
+from src.models.signal import Signal
+from src.models.candle import Candle
+from src.helpers.geometry.show_plot import ShowGeometryPlot
+from src.helpers.trend.trend_calculator import TrendCalculator
+from src.helpers.config.config_reader import ConfigReader
 
 class TrendlineDelegator:
     def __init__(self, signal: Signal, data: List[Candle]) -> None:

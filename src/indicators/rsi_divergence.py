@@ -3,20 +3,20 @@ import math
 from typing import Any, Dict, List
 
 from src.helpers.chart.atr_calculator import ATRCalculator
-from ..models.trend_types import TrendTypes
-from .indicator_abstract import Indicator
-from ..models.signal import Signal
-from ..models.candle import Candle
-from ..models.signal_types import SignalTypes
+from src.models.trend_types import TrendTypes
 from libs.PythonLibrary.utils import debug_text
-from ..helpers.indicators.rsi_calculator import RsiCalculator
-from ..helpers.chart.overbought_calculator import OverBoughtCalculator
-from ..helpers.chart.oversold_calculator import OverSoldCalculator
-from ..helpers.geometry.show_plot import ShowGeometryPlot
-from ..helpers.time.time_converter import TimeConverter
-from ..helpers.geometry.convex_path_check import ConvexPathCheck
-from ..helpers.trend.trend_calculator import TrendCalculator
-from ..helpers.config.config_reader import ConfigReader
+from .indicator_abstract import Indicator
+from src.models.signal import Signal
+from src.models.candle import Candle
+from src.models.signal_types import SignalTypes
+from src.helpers.indicators.rsi_calculator import RsiCalculator
+from src.helpers.chart.overbought_calculator import OverBoughtCalculator
+from src.helpers.chart.oversold_calculator import OverSoldCalculator
+from src.helpers.geometry.show_plot import ShowGeometryPlot
+from src.helpers.time.time_converter import TimeConverter
+from src.helpers.geometry.convex_path_check import ConvexPathCheck
+from src.helpers.trend.trend_calculator import TrendCalculator
+from src.helpers.config.config_reader import ConfigReader
 
 
 
@@ -144,12 +144,13 @@ class RsiDivergence(Indicator):
                         delta = ATRCalculator(self.data[:j + 1], {
                             'window': self.config.get('stoploss.window'),
                         }).do()[-1] * self.config.get('stoploss.multiplier')
+                        dd = self.data[j].closing - (self.data[j].lowest - delta)
                         res.append(Signal(
                             name = self.name,
-                            type = SignalTypes.LONG,
+                            signal_type = SignalTypes.LONG,
                             candle = self.data[j],
                             index = j,
-                            take_profit=self.data[j].closing + self.config.get('take-profit.multiplier') * delta,
+                            take_profit=self.data[j].closing + self.config.get('take-profit.multiplier') * dd,
                             stop_loss=self.data[j].lowest - delta
                         ))
                         # except:

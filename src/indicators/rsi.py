@@ -1,15 +1,15 @@
 from typing import Any, Dict, List
 
-from ..helpers.config.config_reader import ConfigReader
+from libs.PythonLibrary.utils import debug_text
 
 from .indicator_abstract import Indicator
-from ..models.signal import Signal
-from ..models.candle import Candle
-from ..models.signal_types import SignalTypes
-from libs.PythonLibrary.utils import debug_text
-from ..helpers.indicators.rsi_calculator import RsiCalculator
-from ..helpers.chart.overbought_calculator import OverBoughtCalculator
-from ..helpers.chart.oversold_calculator import OverSoldCalculator
+from src.models.signal import Signal
+from src.models.candle import Candle
+from src.models.signal_types import SignalTypes
+from src.helpers.indicators.rsi_calculator import RsiCalculator
+from src.helpers.chart.overbought_calculator import OverBoughtCalculator
+from src.helpers.chart.oversold_calculator import OverSoldCalculator
+from src.helpers.config.config_reader import ConfigReader
 
 
 class Rsi(Indicator):

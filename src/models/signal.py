@@ -3,7 +3,7 @@ from typing import Tuple
 from src.models.signal_statuses import SignalStatuses
 
 from src.helpers.config.config_reader import ConfigReader
-from ..helpers.time.time_converter import TimeConverter
+from src.helpers.time.time_converter import TimeConverter
 from .candle import Candle
 from .signal_types import SignalTypes
 
@@ -12,14 +12,14 @@ class Signal:
     def __init__(
         self, 
         name: str,
-        type: SignalTypes,
+        signal_type: SignalTypes,
         candle: Candle,
         index: int,
         take_profit: float = -1,
         stop_loss: float = -1
     ) -> None:
         self.name = name
-        self.type = type
+        self.type = signal_type
         self.candle = candle
         self.index = index
         self.status = SignalStatuses.PENDING
@@ -42,7 +42,7 @@ class Signal:
             self.candle.closing * (1 + 0.5 * self.config.get('win-percent'))
         )
     
-    def set_status(self, status: int) -> None:
+    def set_status(self, status: SignalStatuses) -> None:
         self.status = status
     
     def set_gain(self, gain: float) -> None:
@@ -56,11 +56,10 @@ class Signal:
         return bl
 
     def __str__(self) -> str:
-        return '[{}/{} - t:{} - s:{} - succeed:{}'.format(
+        return '[{}/{} - t:{} - succeed:{}'.format(
             self.name, 
             self.type, 
             TimeConverter.seconds_to_timestamp(self.candle.time), 
-            self.strength, 
             self.status
         )
 

@@ -1,9 +1,9 @@
 from typing import Any, List
 
-from ..models.signal_types import SignalTypes
-from ..models.candle import Candle
-from ..models.signal import Signal
-from ..delegators.trendline_delegator import TrendlineDelegator
+from src.models.signal_types import SignalTypes
+from src.models.candle import Candle
+from src.models.signal import Signal
+from src.delegators.trendline_delegator import TrendlineDelegator
 
 
 class TrendlinesFilter:

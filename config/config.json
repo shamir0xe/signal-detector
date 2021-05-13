@@ -9,7 +9,7 @@
             "window": 15,
             "stoploss": {
                 "window": 20,
-                "multiplier": 2
+                "multiplier": 1.5
             },
             "take-profit": {
                 "multiplier": 2
@@ -32,11 +32,11 @@
             "window3": 52,
             "volume": {
                 "min-volume-threshold": 0,
-                "window-slow": 20,
+                "window-slow": 10,
                 "window-fast": 5 
             },
             "trend": {
-                "window": 52,
+                "window": 72,
                 "divergence-window": 5
             },
             "stoploss": {
@@ -72,12 +72,12 @@
     },
     "models": {
         "signal": {
-            "win-percent": 0.05 
+            "win-percent": 0.05 ,
+            "life": 24
         }
     },
     "past_days": 999,
     "signals": [
-        "ichimoku",
         "rsi-divergence"
     ],
     "interval": "1hour",

@@ -18,7 +18,7 @@ class TrendConfirmator:
         return self
 
     def check(self) -> bool:
-        return self.bounds[-1].y > self.bounds[-2].y + 1e-9
+        return self.bounds[-1].y > self.bounds[-2].y + 1e-5
 
     def trend_slope(self) -> float:
         return (self.bounds[-1].y - self.bounds[-2].y) / (self.bounds[-1].x - self.bounds[-2].x)

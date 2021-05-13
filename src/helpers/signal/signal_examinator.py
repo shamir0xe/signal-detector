@@ -3,7 +3,7 @@ from ...helpers.config.config_reader import ConfigReader
 from libs.PythonLibrary.utils import debug_text
 from typing import Dict, List
 from ...models.price_types import PriceTypes
-from ...models.signal_types import SignalTypes
+from src.models.signal_types import SignalTypes
 from ...models.signal import Signal
 from ...models.candle import Candle
 from ..price.price_calculator import PriceCalculator
@@ -17,6 +17,7 @@ class SignalExaminator:
         return ConfigReader('helpers.signal.signal-examinator')
 
     def do(self, signal: Signal, data: List[Candle]) -> int:
+        # debug_text('examining signal: %', signal)
         if signal.type is SignalTypes.LONG:
             return self.__examine_long(signal, data)
         return self.__examine_short(signal, data)
@@ -41,6 +42,7 @@ class SignalExaminator:
                 gain = self.__do_math(data[index].closing, signal.candle.closing)
                 break
             index += 1
+        # debug_text('LONG examining signal (%): status: %, gain: %', signal.candle.time, status, gain)
         return {
             "status": status,
             "gain": gain
@@ -66,6 +68,7 @@ class SignalExaminator:
                 gain = self.__do_math(signal.candle.openning, data[index].closing)
                 break
             index += 1
+        # debug_text('SHORT examining signal (%): status: %, gain: %', signal.candle.time, status, gain)
         return {
             "status": status,
             "gain": gain

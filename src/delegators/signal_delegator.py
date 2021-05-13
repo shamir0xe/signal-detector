@@ -1,12 +1,12 @@
 from typing import Any, List
 
-from ..models.signal import Signal
-from ..models.candle import Candle
-from ..indicators.rsi import Rsi
-from ..indicators.stoch import Stoch
-from ..indicators.stoch_rsi import StochRsi
-from ..indicators.rsi_divergence import RsiDivergence
-from ..indicators.ichimoku import Ichimoku
+from src.models.signal import Signal
+from src.models.candle import Candle
+from src.indicators.rsi import Rsi
+from src.indicators.stoch import Stoch
+from src.indicators.stoch_rsi import StochRsi
+from src.indicators.rsi_divergence import RsiDivergence
+from src.indicators.ichimoku import Ichimoku
 
 
 class SignalDelegator:

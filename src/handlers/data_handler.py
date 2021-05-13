@@ -3,9 +3,8 @@ from typing import Any, List
 from src.facades.kucoin import MarketClient
 from src.helpers.config.environment_reader import EnvironmentReader
 from libs.PythonLibrary.utils import debug_text
-from ..adapters.coinex_adapter import CoinexAdapter
-from ..models.candle import Candle
-import time
+from src.adapters.coinex_adapter import CoinexAdapter
+from src.models.candle import Candle
 from src.facades.config import Config
 import src.helpers.data.coinex.market_data_fetcher as coinex
 import src.helpers.data.kucoin.market_data_fetcher as kucoin

@@ -1,8 +1,8 @@
 from typing import List
 from libs.PythonLibrary.geometry import Geometry
 from libs.PythonLibrary.utils import debug_text
-from ..geometry.show_plot import ShowGeometryPlot
-from ...models.trend_types import TrendTypes
+from src.helpers.geometry.show_plot import ShowGeometryPlot
+from src.models.trend_types import TrendTypes
 
 class UpperBoundConvex:
     def __init__(self, data: List[Geometry.Point]) -> None:

@@ -1,7 +1,7 @@
 from typing import List
 
-from ..trend.trend_calculator import TrendCalculator
-from ...models.trend_types import TrendTypes
+from src.helpers.trend.trend_calculator import TrendCalculator
+from src.models.trend_types import TrendTypes
 
 class ConvexPathCheck:
     def __init__(self, data: List[float], index_range: List[int]) -> None:

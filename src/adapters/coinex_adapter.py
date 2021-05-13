@@ -1,6 +1,5 @@
 from typing import Optional
 
-
 class CoinexAdapter:
     def __init__(
         self, 

@@ -1,10 +1,10 @@
 import math
 from typing import List, Optional
 from libs.PythonLibrary.geometry import Geometry
-from ..geometry.convex_calculator import ConvexBound
-from ..geometry.show_plot import ShowGeometryPlot
-from ...models.trend_types import TrendTypes
-from ...models.candle import Candle
+from src.helpers.geometry.convex_calculator import ConvexBound
+from src.helpers.geometry.show_plot import ShowGeometryPlot
+from src.models.trend_types import TrendTypes
+from src.models.candle import Candle
 
 
 class TrendCalculator:

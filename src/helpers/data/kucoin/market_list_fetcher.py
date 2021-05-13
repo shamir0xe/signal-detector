@@ -1,9 +1,4 @@
-import json
-from mmap import PAGESIZE
-from typing import Any, Dict
-
-from kucoin.client import Market
-from src.helpers.config.environment_reader import EnvironmentReader
+from typing import Any
 from src.facades.kucoin import MarketClient
 
 class MarketListFetcher:

@@ -1,6 +1,6 @@
 from libs.PythonLibrary.utils import debug_text
 from typing import Dict, List, Optional
-from ...libs.PythonLibrary.argument_parser import ArgumentParser
+from libs.PythonLibrary.argument_parser import ArgumentParser
 
 
 class ArgumentDelegator:
