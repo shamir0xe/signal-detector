@@ -158,6 +158,7 @@ class App:
                 'type': signal.type.name,
                 'time': signal.candle.time,
                 'market': self.market,
+                'interval': self.interval,
                 'gain': signal.gain,
                 'status': 'OK' if signal.status is SignalStatuses.DONE
                  else 'Failed' if signal.status is SignalStatuses.FAILED 
