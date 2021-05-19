@@ -157,7 +157,7 @@ class App:
                 'success_rate': self.success_rate[signal.name],
                 'type': signal.type.name,
                 'time': signal.candle.time,
-                'market': self.market,
+                'market': self.market.upper(),
                 'interval': self.interval,
                 'gain': signal.gain,
                 'status': 'OK' if signal.status is SignalStatuses.DONE

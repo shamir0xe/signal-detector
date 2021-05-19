@@ -1,9 +1,4 @@
-import os
-import sys
-
-SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
-sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, '..')))
-from SignalDetector.src.delegators.app_delegator import App
+from src.delegators.app_delegator import App
 
 def main():
     App() \

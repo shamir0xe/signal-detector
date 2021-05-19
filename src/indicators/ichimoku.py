@@ -46,18 +46,19 @@ class Ichimoku(Indicator):
         signals = []
         for signal in self.signals:
             if signal.type is SignalTypes.LONG:
-                # sl = IntervalDivider.do(
-                #     start=self.lines[signal.index]['base'],
-                #     end=self.lines[signal.index - self.medium_window]['cloud-bottom'],
-                #     portion=0.66
-                # )
-                # signal.stop_loss = sl
-                # signal.take_profit = 3 * self.data[signal.index].closing - 2 * sl
-                delta = ATRCalculator(self.data[:signal.index + 1], {
-                    'window': self.config.get('stoploss.window'),
-                }).do()[-1] * self.config.get('stoploss.multiplier')
-                signal.stop_loss = self.data[signal.index].lowest - delta
-                signal.take_profit = self.data[signal.index].closing + delta * self.config.get('take-profit.multiplier')
+                sl = IntervalDivider.do(
+                    start=self.lines[signal.index]['base'],
+                    end=self.lines[signal.index - self.medium_window]['cloud-bottom'],
+                    portion=0.5
+                )
+                signal.stop_loss = sl
+                signal.take_profit = 3 * self.data[signal.index].closing - 2 * sl
+
+                # delta = ATRCalculator(self.data[:signal.index + 1], {
+                #     'window': self.config.get('stoploss.window'),
+                # }).do()[-1] * self.config.get('stoploss.multiplier')
+                # signal.stop_loss = self.data[signal.index].lowest - delta
+                # signal.take_profit = self.data[signal.index].closing + delta * self.config.get('take-profit.multiplier')
                 if signal.stop_loss > self.lines[signal.index - self.medium_window]['cloud-bottom']:
                     signals.append(signal)
         return signals
@@ -86,7 +87,7 @@ class Ichimoku(Indicator):
         if rule_number == 1:
             # conversion line should be above the base line
             return self.lines[index]['conversion'] > self.lines[index]['base'] + 1e-6
-        elif rule_number == 2:
+        elif rule_number == 5:
             # lag-span should be above the candles
             return self.data[index].closing > self.data[index - self.medium_window].highest
         elif rule_number == 3:
@@ -95,7 +96,7 @@ class Ichimoku(Indicator):
         elif rule_number == 4:
             # right section of the cloud should be green
             return self.lines[index]['cloud-green'] > self.lines[index]['cloud-red'] + 1e-6
-        elif rule_number == 5:
+        elif rule_number == 2:
             # lag-span should be above the cloud
             return self.data[index].closing > self.lines[index - 2 * self.medium_window]['cloud-top'] + 1e-6
         elif rule_number == 6:
@@ -104,10 +105,21 @@ class Ichimoku(Indicator):
         return False
 
     def __long_condition_check(self, index) -> bool:
+        if "21/05/07" in TimeConverter.seconds_to_timestamp(self.data[index].time):
+            debug_text('MANN time: %', TimeConverter.seconds_to_timestamp(self.data[index].time))
+            debug_text('data.closing = %', self.data[index].closing)
+            debug_text('cloud-green = %', self.lines[index - self.medium_window]['cloud-green'])
+            debug_text('cloud-red = %', self.lines[index - self.medium_window]['cloud-red'])
+            debug_text('conversion/base: % / %', self.lines[index]['conversion'], self.lines[index]['base'])
+            for i in range(3):
+                debug_text('rule number %: %',
+                    i + 1, self.__valid_rule(index, i + 1))
+            debug_text('')
         bl = True
-        for i in range(6):
+        for i in range(3):
             bl &= self.__valid_rule(index, i + 1)
         if bl:
+            return True
             t1 = self.__rule_timer(index, 1)
             t2 = self.__rule_timer(index, 2)
             t3 = self.__rule_timer(index, 3)
@@ -130,7 +142,7 @@ class Ichimoku(Indicator):
         return bl
     
     def __confirm_by_volume(self, index):
-        # return True
+        return True
         return VolumeOscilatorConfirmator(self.data[:index + 1], {
             "min-volume-threshold": self.config.get("volume.min-volume-threshold"),
             "window-slow": self.config.get('volume.window-slow'),
@@ -148,6 +160,7 @@ class Ichimoku(Indicator):
         .check()
     
     def __confirm_conversion_base_divergence(self, index):
+        return True
         slope_conversion = TrendConfirmator([obj['conversion'] for obj in self.lines[:index + 1]], {
             'window': self.config.get('trend.divergence-window')
         }) \
@@ -179,6 +192,8 @@ class Ichimoku(Indicator):
             for j in range(Config.get('models.signal.life') >> 1):
                 bl &= not ((i - j - 1) in oks)
             if bl:
+                # if "21/05/07" in TimeConverter.seconds_to_timestamp(self.data[i].time):
+                #     debug_text('MANN time: %', TimeConverter.seconds_to_timestamp(self.data[i].time))
                 res.append(Signal(
                     self.name, 
                     SignalTypes.LONG, 
