@@ -85,7 +85,7 @@
     },
     "past_days": 999,
     "signals": [
-        "rsi-divergence"
+        "rsi-divergence", "rsi"
     ],
     "interval": "1hour",
     "market": "btcusdt",
