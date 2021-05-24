@@ -47,7 +47,7 @@
                 "divergence-window": 5
             },
             "stoploss": {
-                "multiplier": 2,
+                "multiplier": 1,
                 "window": 20
             },
             "take-profit": {
