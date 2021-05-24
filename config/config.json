@@ -9,7 +9,7 @@
             "window": 15,
             "stoploss": {
                 "window": 20,
-                "multiplier": 1.5
+                "multiplier": 1
             },
             "take-profit": {
                 "multiplier": 2
@@ -18,7 +18,14 @@
         "rsi": {
             "window": 15,
             "upperbound_threshold": 70,
-            "lowerbound_threshold": 30
+            "lowerbound_threshold": 30,
+            "stoploss": {
+                "multiplier": 1,
+                "window": 20
+            },
+            "take-profit": {
+                "multiplier": 2
+            }
         },
         "stoch": {
             "window": 10,

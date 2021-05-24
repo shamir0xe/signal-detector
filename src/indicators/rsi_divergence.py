@@ -109,12 +109,17 @@ class RsiDivergence(Indicator):
                     if self.__check_slope_short(round(trendline.p1.x), round(trendline.p2.x)):
                     # if c1.closing + self.__average_candle_length(c1, c2) / 4 < c2.closing:
                         # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
+                        delta = ATRCalculator(self.data[:j + 1], {
+                            'window': self.config.get('stoploss.window'),
+                        }).do()[-1] * self.config.get('stoploss.multiplier')
+                        dd = (self.data[j].highest + delta) - self.data[j].closing  
                         res.append(Signal(
                             name = self.name,
-                            type = SignalTypes.SHORT,
-                            strength = 0,
+                            signal_type = SignalTypes.SHORT,
                             candle = self.data[j],
-                            index = j
+                            index = j,
+                            take_profit=self.data[j].closing - self.config.get('take-profit.multiplier') * dd,
+                            stop_loss=self.data[j].highest + delta
                         ))
         return res
 
@@ -125,7 +130,7 @@ class RsiDivergence(Indicator):
         picks = self.__low_picks(over_sold, rsi)
         for i in picks:
             for j in picks:
-                if i > j - 1 or abs(i - j) > self.config.get('max_pick_distance'):
+                if i >= j or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
                 if self.__check_rsi_long(rsi, i, j):
                     if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):

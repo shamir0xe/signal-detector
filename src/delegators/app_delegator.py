@@ -40,6 +40,8 @@ class App:
         self.arguments.read()
         for attribute in self.arguments.available_args():
             setattr(self, attribute, self.arguments.get(attribute))
+            if attribute in ['past_days']:
+                setattr(self, attribute, int(getattr(self, attribute)))
         return self
 
     def fetch_data(self) -> App:

@@ -105,21 +105,21 @@ class Ichimoku(Indicator):
         return False
 
     def __long_condition_check(self, index) -> bool:
-        if "21/05/07" in TimeConverter.seconds_to_timestamp(self.data[index].time):
-            debug_text('MANN time: %', TimeConverter.seconds_to_timestamp(self.data[index].time))
-            debug_text('data.closing = %', self.data[index].closing)
-            debug_text('cloud-green = %', self.lines[index - self.medium_window]['cloud-green'])
-            debug_text('cloud-red = %', self.lines[index - self.medium_window]['cloud-red'])
-            debug_text('conversion/base: % / %', self.lines[index]['conversion'], self.lines[index]['base'])
-            for i in range(3):
-                debug_text('rule number %: %',
-                    i + 1, self.__valid_rule(index, i + 1))
-            debug_text('')
+        # if "21/05/07" in TimeConverter.seconds_to_timestamp(self.data[index].time):
+        #     debug_text('MANN time: %', TimeConverter.seconds_to_timestamp(self.data[index].time))
+        #     debug_text('data.closing = %', self.data[index].closing)
+        #     debug_text('cloud-green = %', self.lines[index - self.medium_window]['cloud-green'])
+        #     debug_text('cloud-red = %', self.lines[index - self.medium_window]['cloud-red'])
+        #     debug_text('conversion/base: % / %', self.lines[index]['conversion'], self.lines[index]['base'])
+        #     for i in range(3):
+        #         debug_text('rule number %: %',
+        #             i + 1, self.__valid_rule(index, i + 1))
+        #     debug_text('')
         bl = True
-        for i in range(3):
+        for i in range(6):
             bl &= self.__valid_rule(index, i + 1)
         if bl:
-            return True
+            # return True
             t1 = self.__rule_timer(index, 1)
             t2 = self.__rule_timer(index, 2)
             t3 = self.__rule_timer(index, 3)
@@ -160,7 +160,7 @@ class Ichimoku(Indicator):
         .check()
     
     def __confirm_conversion_base_divergence(self, index):
-        return True
+        # return True
         slope_conversion = TrendConfirmator([obj['conversion'] for obj in self.lines[:index + 1]], {
             'window': self.config.get('trend.divergence-window')
         }) \
