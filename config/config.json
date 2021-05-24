@@ -25,12 +25,22 @@
             },
             "take-profit": {
                 "multiplier": 2
+            },
+            "ema": {
+                "window": 200
             }
         },
         "stoch": {
             "window": 10,
-            "upperbound_threshold": 80,
-            "lowerbound_threshold": 20
+            "upperbound_threshold": 90,
+            "lowerbound_threshold": 10,
+            "stoploss": {
+                "multiplier": 1,
+                "window": 20
+            },
+            "take-profit": {
+                "multiplier": 2
+            }
         },
         "ichimoku": {
             "offset": 52,

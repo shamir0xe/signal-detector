@@ -13,6 +13,7 @@ from src.helpers.chart.oversold_calculator import OverSoldCalculator
 from src.helpers.config.config_reader import ConfigReader
 from src.helpers.chart.atr_calculator import ATRCalculator
 from src.facades.config import Config
+from src.helpers.chart.ema_calculator import EmaCalculator
 
 class Rsi(Indicator):
     def __init__(self, data: List[Candle]) -> None:
@@ -75,10 +76,15 @@ class Rsi(Indicator):
     def __long_signals(self, rsi: Any, threshold: float) -> List[Signal]:
         res = []
         over_boughts = OverSoldCalculator().calculate(rsi, threshold=threshold, config=self.config)
+        ema = EmaCalculator([candle.closing for candle in self.data], {
+            'window': self.config.get('indicators.rsi.ema.window')
+        }).do()
         for region in over_boughts:
             for index in region[-1:]:
                 bl = True
-                if len(res) > 0 and index - res[-1].index <= (Config.get('models.signal.life') >> 1):
+                if self.data[index].closing + 1e-5 > ema[index]:
+                    bl = False
+                if bl and len(res) > 0 and index - res[-1].index <= (Config.get('models.signal.life') >> 1):
                     bl = False
                 if bl:
                     res.append(Signal(
