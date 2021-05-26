@@ -53,7 +53,7 @@
                 "window-fast": 5 
             },
             "trend": {
-                "window": 72,
+                "window": 26,
                 "divergence-window": 5
             },
             "stoploss": {
@@ -95,7 +95,7 @@
     },
     "past_days": 999,
     "signals": [
-        "rsi-divergence", "rsi"
+        "rsi-divergence", "rsi", "ichimoku"
     ],
     "interval": "1hour",
     "market": "btcusdt",

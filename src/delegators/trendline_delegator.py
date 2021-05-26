@@ -78,8 +78,8 @@ class TrendlineDelegator:
             return -1
         index = self.find_index()
         reference_point = Geometry.Point(self.index, self.data[self.index].closing)
-        # -1 is so important, because the result still being updated in that candle!
-        while index < len(self.data) - 1 and index - self.index < self.config.get('signal_life'):
+        # -1 is so important, because the result still being updated in that candle! -- UPDATED: it's not important anymore
+        while index < len(self.data) and index - self.index < self.config.get('signal_life'):
             p_box_1 = Geometry.Point(index, self.data[index].closing)
             p_box_2 = Geometry.Point(index, self.data[index].openning)
             if self.get_side(reference_point) * self.get_side(p_box_1) == -1 and \

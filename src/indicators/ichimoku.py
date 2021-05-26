@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+from src.helpers.trend.trend_calculator import TrendCalculator
 from libs.PythonLibrary.utils import debug_text
 from .indicator_abstract import Indicator
 from src.models.trend_types import TrendTypes
@@ -85,23 +86,26 @@ class Ichimoku(Indicator):
 
     def __valid_rule(self, index: int, rule_number: int) -> int:
         if rule_number == 1:
-            # conversion line should be above the base line
+            # conversion line should be above the base line -- TK cross
             return self.lines[index]['conversion'] > self.lines[index]['base'] + 1e-6
-        elif rule_number == 5:
-            # lag-span should be above the candles
-            return self.data[index].closing > self.data[index - self.medium_window].highest
+        elif rule_number == 2:
+            # lag-span should be above the cloud -- chiko span / kumo
+            return self.data[index].closing > self.lines[index - 2 * self.medium_window]['cloud-top'] + 1e-6
         elif rule_number == 3:
-            # candles should be above the cloud
+            # candles should be above the cloud -- price / kumo
             return self.data[index].closing > self.lines[index - self.medium_window]['cloud-top'] + 1e-6
         elif rule_number == 4:
-            # right section of the cloud should be green
+            # right section of the cloud should be green -- kumo future
             return self.lines[index]['cloud-green'] > self.lines[index]['cloud-red'] + 1e-6
-        elif rule_number == 2:
-            # lag-span should be above the cloud
-            return self.data[index].closing > self.lines[index - 2 * self.medium_window]['cloud-top'] + 1e-6
+        elif rule_number == 5:
+            # lag-span should be above the candles -- chiko span / price
+            return self.data[index].closing > self.data[index - self.medium_window].highest
         elif rule_number == 6:
             # conversion line should be above the cloud
             return self.lines[index]['conversion'] > self.lines[index - self.medium_window]['cloud-top'] + 1e-6
+        elif rule_number == 7:
+            # current section of cloud should be green -- kumo current
+            return self.lines[index - self.medium_window]['cloud-green'] > self.lines[index - self.medium_window]['cloud-red'] + 1e-6
         return False
 
     def __long_condition_check(self, index) -> bool:
@@ -116,10 +120,9 @@ class Ichimoku(Indicator):
         #             i + 1, self.__valid_rule(index, i + 1))
         #     debug_text('')
         bl = True
-        for i in range(6):
+        for i in range(7):
             bl &= self.__valid_rule(index, i + 1)
         if bl:
-            # return True
             t1 = self.__rule_timer(index, 1)
             t2 = self.__rule_timer(index, 2)
             t3 = self.__rule_timer(index, 3)
@@ -150,9 +153,15 @@ class Ichimoku(Indicator):
         }).do(TrendTypes.UP)
 
     def __confirm_by_trend(self, index):
+        # should be tested TODO
         return True
-        start = max(0, index - self.config.get('trend.window'))
-        return self.data[index].lowest > self.data[start].highest
+        # start = max(0, index - self.config.get('trend.window'))
+        # return self.data[index].lowest > self.data[start].highest
+        trend_line = TrendCalculator(
+            [candle.highest for candle in self.data[:index + 1]], 
+            range(max(0, index - self.config.get('trend.window')), index + 1), 
+            [candle.volume for candle in self.data[:index + 1]]
+        )
         return TrendConfirmator([candle.highest for candle in self.data[:index + 1]], {
             'window': self.config.get('trend.window')
         }) \
