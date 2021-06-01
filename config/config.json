@@ -120,7 +120,7 @@
             "life": 24
         }
     },
-    "past_days": 999,
+    "past_days": 333,
     "signals": [
         "rsi-divergence",
         "rsi",
