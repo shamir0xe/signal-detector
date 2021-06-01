@@ -19,7 +19,7 @@ from src.facades.config import Config
 class Ichimoku(Indicator):
     def __init__(self, data: List[Candle]) -> None:
         self.name = 'ichimoku'
-        self.data = data[:-1]
+        self.data = data[::]
         self.config = self.__read_config()
         self.signals = []
         self.lines = []

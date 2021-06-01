@@ -29,6 +29,8 @@ class SignalExaminator:
         status = SignalStatuses.PENDING
         index = signal.index + 1
         while index < len(data):
+            # if "Mon 21/05/24" in TimeConverter.seconds_to_timestamp(signal.candle.time):
+            #     debug_text('time, highest, tp: %, %, %', TimeConverter.seconds_to_timestamp(data[index].time), data[index].highest, signal.take_profit)
             if data[index].lowest < stop_limit:
                 status = SignalStatuses.FAILED
                 gain = self.__do_math(stop_limit, signal.candle.closing)

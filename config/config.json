@@ -1,5 +1,21 @@
 {
     "indicators": {
+        "candlestick-pattern": {
+            "key-level": {
+                "left-window": 10,
+                "right-window": 10,
+                "min-count": 3,
+                "window": 66
+            },
+            "stoploss": {
+                "window": 20,
+                "multiplier": 1
+            },
+            "take-profit": {
+                "multiplier": 1.75
+            },
+            "minimum-points": 1
+        },
         "rsi-divergence": {
             "max_pick_distance": 20,
             "upperbound_threshold": 60,
@@ -50,7 +66,7 @@
             "volume": {
                 "min-volume-threshold": 0,
                 "window-slow": 10,
-                "window-fast": 5 
+                "window-fast": 5
             },
             "trend": {
                 "window": 26,
@@ -64,6 +80,17 @@
                 "multiplier": 2
             }
         }
+    },
+    "key-level": {
+        "discount-factor": 1,
+        "breakthrough-window": 3,
+        "min-touch-ratio": 0.44,
+        "long-wick-body-ratio": 2,
+        "long-wick-backward": 3,
+        "shrinking-candles-backward": 3,
+        "shrinking-candles-offset": 1,
+        "candles-color-backward": 4,
+        "candles-color-offset": 1
     },
     "delegators": {
         "trend-line-delegator": {
@@ -89,16 +116,22 @@
     },
     "models": {
         "signal": {
-            "win-percent": 0.05 ,
+            "win-percent": 0.05,
             "life": 24
         }
     },
     "past_days": 999,
     "signals": [
-        "rsi-divergence", "rsi", "ichimoku"
+        "rsi-divergence",
+        "rsi",
+        "ichimoku",
+        "candlestick-pattern"
     ],
     "interval": "1hour",
     "market": "btcusdt",
     "provider": "kucoin",
-    "base-markets": ["usdt", "btc"]
+    "base-markets": [
+        "usdt",
+        "btc"
+    ]
 }
