@@ -1,4 +1,6 @@
 from typing import Any, Dict, List
+from src.helpers.chart.ema_calculator import EmaCalculator
+from src.helpers.chart.trend_extractor import TrendExtractor
 from src.helpers.trend.trend_calculator import TrendCalculator
 from libs.PythonLibrary.utils import debug_text
 from .indicator_abstract import Indicator
@@ -24,6 +26,7 @@ class CandlestickPattern(Indicator):
         self.data = data[::]
         self.config = self.__read_config()
         self.signals = []
+        self.ema = []
 
     def __read_config(self) -> Dict:
         return ConfigReader('indicators.candlestick-pattern')
@@ -44,11 +47,12 @@ class CandlestickPattern(Indicator):
         signals = []
         for signal in self.signals:
             if signal.type is SignalTypes.LONG:
-                # delta = ATRCalculator(self.data[:signal.index + 1], {
-                #     'window': self.config.get('stoploss.window'),
-                # }).do()[-1] * self.config.get('stoploss.multiplier')
-                # signal.stop_loss = self.data[signal.index].lowest - delta
-                # signal.take_profit = self.data[signal.index].closing + delta * self.config.get('take-profit.multiplier')
+                delta = ATRCalculator(self.data[:signal.index + 1], {
+                    'window': self.config.get('stoploss.window'),
+                }).do()[-1] * self.config.get('stoploss.multiplier')
+                signal.stop_loss = self.data[signal.index].closing - delta
+                signal.take_profit = self.data[signal.index].closing + delta * self.config.get('take-profit.multiplier')
+                # debug_text('signal: %', signal)
                 signals.append(signal)
         return signals
 
@@ -57,6 +61,9 @@ class CandlestickPattern(Indicator):
         return res
 
     def __long_signals(self) -> List[Signal]:
+        ema = EmaCalculator([candle.highest for candle in self.data], {
+            'window': self.config.get('ema.window')
+        }).do()
         res = []
         calculator = KeyLevelCalculator(self.data[:self.config.get('key-level.left-window')], {
             'left-window': self.config.get('key-level.left-window'),
@@ -65,14 +72,22 @@ class CandlestickPattern(Indicator):
         for i in range(self.config.get('key-level.left-window'), len(self.data)):
             key_levels = calculator.add_candle(self.data[i])
             key_levels = [key_level for key_level in key_levels if key_level.count >= self.config.get('key-level.min-count') and i - key_level.index <= self.config.get('key-level.window')]
+            current_trend = TrendExtractor(self.data[max(i-self.config.get('trend.window'), 0):i + 1]).do()
+            # debug_text('CURRENT TREND is: %', current_trend.name)
+            if current_trend != TrendTypes.DOWN:
+                continue
+            if self.data[i].closing < ema[i]:
+                continue
             points, level = CandlestickCalculator(
                 data=self.data[i - self.config.get('key-level.left-window'):i + 1],
                 key_levels=key_levels
-            ).do(TrendTypes.UP)
+            ).do(current_trend)
             if points >= self.config.get('minimum-points'):
                 # debug_text('key level selected: %', level)
-                sl = min(level.level, self.data[i].lowest)
-                tp = self.data[i].closing + (self.data[i].closing - sl) * self.config.get('take-profit.multiplier')
+                # dd = self.data[i].closing - min(level.level, self.data[i].lowest)
+                # dd *= self.config.get('stoploss.multiplier')
+                # sl = self.data[i].closing - dd
+                # tp = self.data[i].closing + dd * self.config.get('take-profit.multiplier')
                 # debug_text('sl, tp: %, %', sl, tp)
                 # debug_text('\nkey levels are as follow:')
                 # for key_level in key_levels:
@@ -82,7 +97,7 @@ class CandlestickPattern(Indicator):
                     signal_type=SignalTypes.LONG,
                     candle=self.data[i],
                     index=i,
-                    take_profit=tp,
-                    stop_loss=sl
+                    # take_profit=tp,
+                    # stop_loss=sl
                 ))
         return res

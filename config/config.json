@@ -4,17 +4,23 @@
             "key-level": {
                 "left-window": 10,
                 "right-window": 10,
-                "min-count": 3,
+                "min-count": 1,
                 "window": 66
             },
             "stoploss": {
-                "window": 20,
-                "multiplier": 1
+                "window": 10,
+                "multiplier": 2
             },
             "take-profit": {
-                "multiplier": 1.75
+                "multiplier": 2
             },
-            "minimum-points": 1
+            "minimum-points": 1,
+            "trend": {
+                "window": 44
+            },
+            "ema": {
+                "window": 66
+            }
         },
         "rsi-divergence": {
             "max_pick_distance": 20,
@@ -84,7 +90,7 @@
     "key-level": {
         "discount-factor": 1,
         "breakthrough-window": 3,
-        "min-touch-ratio": 0.44,
+        "min-touch-ratio": 0.33,
         "long-wick-body-ratio": 2,
         "long-wick-backward": 3,
         "shrinking-candles-backward": 3,
@@ -112,6 +118,9 @@
             "signal-examinator": {
                 "signal_life": 24
             }
+        },
+        "trend": {
+            "candle-avg-multiplier": 0.5
         }
     },
     "models": {

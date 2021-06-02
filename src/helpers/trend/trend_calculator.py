@@ -1,3 +1,4 @@
+from libs.PythonLibrary.utils import debug_text
 import math
 from typing import List, Optional
 from libs.PythonLibrary.geometry import Geometry
@@ -13,7 +14,7 @@ class TrendCalculator:
         self.index_range = index_range
         self.volume = volume if volume is not None else [1 for _ in range(len(data))]
 
-    def do(self, trend: TrendTypes):
+    def do(self, trend: TrendTypes) -> Geometry.Line:
         bounds = ConvexBound([Geometry.Point(i, self.data[i]) for i in self.index_range]).do(trend)
         index_array = [round(point.x) for point in bounds]
         index_array = index_array[::-1]
@@ -28,6 +29,7 @@ class TrendCalculator:
             Geometry.Point(trend_indices[0], self.data[trend_indices[0]]),
             Geometry.Point(trend_indices[1], self.data[trend_indices[1]]),
         )
-        # ShowGeometryPlot.do([trendline.p1, trendline.p2])
+        # debug_text('trend: %', trend)
+        # ShowGeometryPlot.do([trendline.p1, trendline.p2], [Geometry.Point(i, self.data[i]) for i in self.index_range])
         return trendline
 

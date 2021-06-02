@@ -56,10 +56,13 @@ class Signal:
         return bl
 
     def __str__(self) -> str:
-        return '[{}/{} - t:{} - succeed:{}'.format(
+        return '[{}/{} - t:{} - succeed:{} - en/tp/sl:{:02f}/{:02f}/{:02f}'.format(
             self.name, 
             self.type, 
             TimeConverter.seconds_to_timestamp(self.candle.time), 
-            self.status
+            self.status,
+            self.candle.closing,
+            self.take_profit,
+            self.stop_loss
         )
 
