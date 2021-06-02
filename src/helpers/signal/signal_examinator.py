@@ -1,13 +1,14 @@
 from src.models.signal_statuses import SignalStatuses
-from ...helpers.config.config_reader import ConfigReader
+from src.helpers.config.config_reader import ConfigReader
 from libs.PythonLibrary.utils import debug_text
 from typing import Dict, List
-from ...models.price_types import PriceTypes
+from src.models.price_types import PriceTypes
 from src.models.signal_types import SignalTypes
-from ...models.signal import Signal
-from ...models.candle import Candle
-from ..price.price_calculator import PriceCalculator
-from ...helpers.time.time_converter import TimeConverter
+from src.models.signal import Signal
+from src.models.candle import Candle
+from src.helpers.price.price_calculator import PriceCalculator
+from src.helpers.time.time_converter import TimeConverter
+from src.facades.config import Config
 
 class SignalExaminator:
     def __init__(self) -> None:
@@ -39,7 +40,7 @@ class SignalExaminator:
                 status = SignalStatuses.DONE
                 gain = self.__do_math(profit_point, signal.candle.closing)
                 break
-            if index - signal.index > self.config.get('signal_life'):
+            if index - signal.index > Config.get('models.signal.life'):
                 status = SignalStatuses.DUMPED
                 gain = self.__do_math(data[index].closing, signal.candle.closing)
                 break
@@ -65,7 +66,7 @@ class SignalExaminator:
                 status = SignalStatuses.DONE
                 gain = -self.__do_math(profit_point, signal.candle.closing)
                 break
-            if index - signal.index > self.config.get('signal_life'):
+            if index - signal.index > Config.get('models.signal.life'):
                 status = SignalStatuses.DUMPED
                 gain = -self.__do_math(data[index].closing, signal.candle.closing)
                 break
