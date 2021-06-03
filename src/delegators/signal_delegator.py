@@ -8,6 +8,7 @@ from src.indicators.stoch_rsi import StochRsi
 from src.indicators.rsi_divergence import RsiDivergence
 from src.indicators.ichimoku import Ichimoku
 from src.indicators.candlestick_pattern import CandlestickPattern
+from src.indicators.chart_pattern import ChartPattern
 
 
 class SignalDelegator:
@@ -28,6 +29,10 @@ class SignalDelegator:
             self.signals = [*self.signals, *Ichimoku(self.data).get_signals()]
         elif signal_name == 'candlestick-pattern':
             self.signals = [*self.signals, *CandlestickPattern(self.data).get_signals()]
+        elif signal_name == 'chart-pattern':
+            self.signals = [*self.signals, *ChartPattern(self.data).get_signals()]
+
+
 
     def get_signals(self) -> List[Signal]:
         return self.signals

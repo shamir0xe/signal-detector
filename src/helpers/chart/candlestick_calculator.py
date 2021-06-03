@@ -112,7 +112,7 @@ class CandlestickCalculator:
         #     debug_text('INSIDE_BAR_CANDLE')
         return +1 if bl else 0
 
-    def get_mixed_level(self, trend_type: TrendTypes) -> Optional[KeyLevel]:
+    def get_mixed_level(self) -> Optional[KeyLevel]:
         for key_level in self.key_levels:
             cur_side = self.side(key_level.level)
             if cur_side == 0:
@@ -123,15 +123,19 @@ class CandlestickCalculator:
         bl = True
         # -1 candle should be green
         bl &= self.data[-1].closing > self.data[-1].openning
-        # -1 candle body > -2 candle body
-        bl &= self.data[-1].get_size() > self.data[-2].get_size()
+        tk = False
+        for i in range(Config.get('key-level.breakthrough-window')):
+            # -1 candle body > -2 candle body
+            tk |= self.data[-1 - i].get_size() > self.data[-2 - i].get_size()
+        bl &= tk
+        # bl &= self.data[-1].get_size() > self.data[-2].get_size()
         # all of the candles should be above levels till reaching mixed level
         # in the mixed level:
         #                       candle -1 should be closed above the level
         if not bl:
             return 0
         # debug_text('we have need to find key level')
-        mixed_level = self.get_mixed_level(trend_type)
+        mixed_level = self.get_mixed_level()
         self.key_level = mixed_level
         bl &= mixed_level != None and self.data[-1].closing > mixed_level.level
         # last closing should be more higher than openning according to level
@@ -144,8 +148,13 @@ class CandlestickCalculator:
         bl = True
         if trend_type is TrendTypes.DOWN:
             count = 0
-            for candle in self.data:
-                count += 1 if candle.highest > self.key_level.level else 0
+            for candle in self.data[-Config.get('key-level.rejection-backward'):]:
+                fl = True
+                # candle should be red
+                fl &= candle.closing < candle.openning
+                # cannot reach the level
+                fl &= candle.highest > self.key_level.level
+                count += 1 if fl else 0
             bl &= count > round(Config.get('key-level.min-touch-ratio') * len(self.data))
         # if bl:
         #     debug_text('MULTIPLE REJECTION')
@@ -161,6 +170,7 @@ class CandlestickCalculator:
             for candle in self.data[len(self.data) - Config.get('key-level.shrinking-candles-backward'):-Config.get('key-level.shrinking-candles-offset')]:
                 temp = candle.openning - candle.closing
                 bl &= size > temp 
+                bl &= candle.closing < candle.openning
                 size = temp
             # if gk and "Mon 21/05/24" in TimeConverter.seconds_to_timestamp(self.data[-1].time):
             #     debug_text('~~~~ i is %', i)

@@ -1,11 +1,25 @@
 {
     "indicators": {
+        "chart-pattern": {
+            "window": 44,
+            "price-action": {
+                "left-window": 10,
+                "ratio": 0.3
+            },
+            "stoploss": {
+                "window": 10,
+                "multiplier": 2
+            },
+            "take-profit": {
+                "multiplier": 2
+            }
+        },
         "candlestick-pattern": {
             "key-level": {
                 "left-window": 10,
                 "right-window": 10,
                 "min-count": 1,
-                "window": 66
+                "window": 88
             },
             "stoploss": {
                 "window": 10,
@@ -88,8 +102,9 @@
         }
     },
     "key-level": {
+        "rejection-backward": 3,
         "discount-factor": 1,
-        "breakthrough-window": 3,
+        "breakthrough-window": 5,
         "min-touch-ratio": 0.11,
         "long-wick-body-ratio": 2,
         "long-wick-backward": 3,
@@ -124,12 +139,13 @@
             "life": 12
         }
     },
-    "past_days": 333,
+    "past_days": 222,
     "signals": [
         "rsi-divergence",
         "rsi",
         "ichimoku",
-        "candlestick-pattern"
+        "candlestick-pattern",
+        "chart-pattern"
     ],
     "interval": "1hour",
     "market": "btcusdt",
