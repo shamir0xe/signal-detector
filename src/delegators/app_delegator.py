@@ -81,6 +81,7 @@ class App:
             exam_result = SignalExaminator().do(signal, self.data)
             signal.set_status(exam_result["status"])
             signal.set_gain(exam_result["gain"])
+            signal.set_life(exam_result['life'])
         return self
     
     def filter_trendlines(self) -> App:
@@ -162,6 +163,7 @@ class App:
                 'market': self.market,
                 'interval': self.interval,
                 'gain': signal.gain,
+                'life': signal.life,
                 'status': 'OK' if signal.status is SignalStatuses.DONE
                  else 'Failed' if signal.status is SignalStatuses.FAILED 
                  else 'Pending' if signal.status is SignalStatuses.PENDING else 'Dumped',

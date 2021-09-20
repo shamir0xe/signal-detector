@@ -17,7 +17,7 @@ from src.helpers.time.time_converter import TimeConverter
 from src.helpers.geometry.convex_path_check import ConvexPathCheck
 from src.helpers.trend.trend_calculator import TrendCalculator
 from src.helpers.config.config_reader import ConfigReader
-
+from src.filters.trendlines_filter import TrendlinesFilter
 
 
 class RsiDivergence(Indicator):
@@ -82,6 +82,7 @@ class RsiDivergence(Indicator):
     def __check_slope_long(self, i: int, j: int) -> bool:
         if self.data[i].closing <= self.data[j].closing:
             return False
+        return True
         slope = (self.data[i].closing - self.data[j].closing) / ((sum([candle.get_size() for candle in self.data[i + 1:j + 1]]) / (j - i)) * (j - i))
         # debug_text('long slope: %/%', slope, self.config.get('min_slope'))
         return slope > self.config.get('min_slope')
@@ -123,6 +124,20 @@ class RsiDivergence(Indicator):
                         ))
         return res
 
+    def __calculate_signal(self, j: int) -> Signal:
+        delta = ATRCalculator(self.data[:j + 1], {
+            'window': self.config.get('stoploss.window'),
+        }).do()[-1] * self.config.get('stoploss.multiplier')
+        dd = self.data[j].closing - (self.data[j].lowest - delta)
+        return Signal(
+            name = self.name,
+            signal_type = SignalTypes.LONG,
+            candle = self.data[j],
+            index = j,
+            take_profit=self.data[j].closing + self.config.get('take-profit.multiplier') * dd,
+            stop_loss=self.data[j].lowest - delta
+        )
+
     def __long_signals(self, rsi: Any, threshold: float) -> List[Signal]:
         res = []
         over_sold = OverSoldCalculator().calculate(rsi, threshold=threshold, config=self.config)
@@ -133,8 +148,8 @@ class RsiDivergence(Indicator):
                 if i >= j or abs(i - j) > self.config.get('max_pick_distance'):
                     continue
                 if self.__check_rsi_long(rsi, i, j):
-                    if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):
-                        continue
+                    # if not ConvexPathCheck(rsi, range(i, j + 1)).do(TrendTypes.DOWN):
+                    #     continue
                     trendline = TrendCalculator(
                         [candle.closing for candle in self.data],
                         range(i, j + 1),
@@ -146,18 +161,10 @@ class RsiDivergence(Indicator):
                     if self.__check_slope_long(round(trendline.p1.x), round(trendline.p2.x)):
                     # if c2.closing + self.__average_candle_length(c1, c2) / 4 < c1.closing:
                         # debug_text('% -> %', TimeConverter.seconds_to_timestamp(self.data[i].time), TimeConverter.seconds_to_timestamp(self.data[j].time))
-                        delta = ATRCalculator(self.data[:j + 1], {
-                            'window': self.config.get('stoploss.window'),
-                        }).do()[-1] * self.config.get('stoploss.multiplier')
-                        dd = self.data[j].closing - (self.data[j].lowest - delta)
-                        res.append(Signal(
-                            name = self.name,
-                            signal_type = SignalTypes.LONG,
-                            candle = self.data[j],
-                            index = j,
-                            take_profit=self.data[j].closing + self.config.get('take-profit.multiplier') * dd,
-                            stop_loss=self.data[j].lowest - delta
-                        ))
+                        signal = self.__calculate_signal(j)
+                        index = TrendlinesFilter().validate(signal, self.data)
+                        if index > 0:
+                            res.append(self.__calculate_signal(index))
                         # except:
                         #     debug_text('i, j -> (%, %)', i, j)
                         #     for candle in self.data[:j + 1]:

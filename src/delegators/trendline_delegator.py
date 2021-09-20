@@ -73,19 +73,20 @@ class TrendlineDelegator:
 
     def check_passline(self) -> int:
         if self.trendline is None:
-            return 0
-        if not self.check_slope() or not self.pass_weight:
             return -1
+        # if not self.check_slope() or not self.pass_weight:
+        #     return -1
         index = self.find_index()
-        reference_point = Geometry.Point(self.index, self.data[self.index].closing)
+        reference_point = Geometry.Point(self.index, self.data[self.index].lowest)
+        ref_side = self.get_side(reference_point)
         # -1 is so important, because the result still being updated in that candle! -- UPDATED: it's not important anymore
         while index < len(self.data) and index - self.index < self.config.get('signal_life'):
-            p_box_1 = Geometry.Point(index, self.data[index].closing)
+            # p_box_1 = Geometry.Point(index, self.data[index].closing)
             p_box_2 = Geometry.Point(index, self.data[index].openning)
-            if self.get_side(reference_point) * self.get_side(p_box_1) == -1 and \
-                self.get_side(reference_point) * self.get_side(p_box_2) == -1:
+            if ref_side * self.get_side(p_box_2) == -1:
+                # self.get_side(reference_point) * self.get_side(p_box_2) == -1:
                 return index
             index += 1
-        if index - self.index >= self.config.get('signal_life'):
-            return -1
-        return 0
+        # if index - self.index >= self.config.get('signal_life'):
+        #     return -1
+        return -1

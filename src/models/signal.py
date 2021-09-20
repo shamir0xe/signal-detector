@@ -27,6 +27,7 @@ class Signal:
         self.take_profit = take_profit
         self.stop_loss = stop_loss
         self.gain = 0
+        self.life = 0
         self.config = ConfigReader('models.signal')
         if self.take_profit < 0:
             self.take_profit, self.stop_loss = self.__calculate_limits()
@@ -47,6 +48,9 @@ class Signal:
     
     def set_gain(self, gain: float) -> None:
         self.gain = gain
+
+    def set_life(self, life: int) -> None:
+        self.life = life
     
     def equals(self, signal: Signal) -> bool:
         bl = True

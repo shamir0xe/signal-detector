@@ -37,12 +37,13 @@
             }
         },
         "rsi-divergence": {
-            "max_pick_distance": 20,
+            "open-last-include": true,
+            "max_pick_distance": 44,
             "upperbound_threshold": 60,
             "lowerbound_threshold": 40,
-            "min_rsi_diff": 1.5,
-            "min_slope": 0.09,
-            "window": 15,
+            "min_rsi_diff": 0.1,
+            "min_slope": 0.03,
+            "window": 20,
             "stoploss": {
                 "window": 20,
                 "multiplier": 1
@@ -52,7 +53,8 @@
             }
         },
         "rsi": {
-            "window": 15,
+            "open-last-include": false,
+            "window": 200,
             "upperbound_threshold": 70,
             "lowerbound_threshold": 30,
             "stoploss": {
@@ -63,7 +65,7 @@
                 "multiplier": 2
             },
             "ema": {
-                "window": 200
+                "window": 33
             }
         },
         "stoch": {
@@ -116,7 +118,7 @@
     "delegators": {
         "trend-line-delegator": {
             "convex_length": 25,
-            "signal_life": 20
+            "signal_life": 33
         }
     },
     "helpers": {
@@ -139,15 +141,12 @@
             "life": 12
         }
     },
-    "past_days": 222,
+    "past_days": 150,
     "signals": [
         "rsi-divergence",
-        "rsi",
-        "ichimoku",
-        "candlestick-pattern",
-        "chart-pattern"
+        "rsi"
     ],
-    "interval": "1hour",
+    "interval": "5min",
     "market": "btcusdt",
     "provider": "kucoin",
     "base-markets": [

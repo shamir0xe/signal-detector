@@ -28,7 +28,7 @@ class Candle:
         return getattr(self, attribute)
     
     def get_size(self) -> float:
-        return math.fabs(self.closing - self.openning)
+        return math.fabs(self.closing - self.openning) + 1e-9
 
     def __str__(self) -> str:
         return '[market: {}, time: {}, o: {}, c: {}, h: {}, l: {}, v: {}, amount: {}]'.format(

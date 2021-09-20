@@ -13,6 +13,6 @@ class OverSoldCalculator:
             while index < len(data) and data[index] <= threshold:
                 region.append(index)
                 index += 1
-            if len(region) > 0:
+            if len(region) > 0 and (config.get('open-last-include') or index < len(data)):
                 res.append(region)
         return res

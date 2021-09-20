@@ -1,4 +1,5 @@
 from typing import Any, Dict, List
+from src.filters.trendlines_filter import TrendlinesFilter
 from src.adapters.interval_adapter import IntervalAdapter
 
 from libs.PythonLibrary.utils import debug_text
@@ -33,7 +34,7 @@ class Rsi(Indicator):
         res = []
         rsi = RsiCalculator(self.data, self.config).calculate()
 
-        up_threshold = self.config.get('indicators.rsi.upperbound_threshold')
+        # up_threshold = self.config.get('indicators.rsi.upperbound_threshold')
         # res = [*res, *self.__short_signals(rsi, up_threshold)]
 
         lo_threshold = self.config.get('indicators.rsi.lowerbound_threshold')
@@ -73,6 +74,14 @@ class Rsi(Indicator):
                 ))
         return res
 
+    def __calculate_signal(self, index: int) -> Signal:
+        return Signal(
+            self.name, 
+            SignalTypes.LONG,
+            self.data[index],
+            index
+        )
+
     def __long_signals(self, rsi: Any, threshold: float) -> List[Signal]:
         res = []
         over_boughts = OverSoldCalculator().calculate(rsi, threshold=threshold, config=self.config)
@@ -80,17 +89,15 @@ class Rsi(Indicator):
             'window': self.config.get('indicators.rsi.ema.window')
         }).do()
         for region in over_boughts:
-            for index in region[-1:]:
-                bl = True
-                if self.data[index].closing + 1e-5 > ema[index]:
-                    bl = False
-                if bl and len(res) > 0 and index - res[-1].index <= (Config.get('models.signal.life') >> 1):
-                    bl = False
-                if bl:
-                    res.append(Signal(
-                        self.name, 
-                        SignalTypes.LONG,
-                        self.data[index],
-                        index
-                    ))
+            index = region[-1] + 1
+            bl = True
+            # if self.data[index].closing + 1e-5 < ema[index]:
+            #     bl = False
+            if bl and len(res) > 0 and index - res[-1].index <= (Config.get('models.signal.life') >> 1):
+                bl = False
+            if bl:
+                # signal = self.__calculate_signal(index)
+                # index = TrendlinesFilter().validate(signal, self.data)
+                # if index > 0:
+                res.append(self.__calculate_signal(index))
         return res
