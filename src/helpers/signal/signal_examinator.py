@@ -55,7 +55,7 @@ class SignalExaminator:
         return {
             "status": status,
             "gain": gain,
-            'life': index - real_init_index
+            'life': index - signal.index
         }
 
     def __examine_short(self, signal: Signal, data: List[Candle]) -> Dict:
