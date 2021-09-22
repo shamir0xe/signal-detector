@@ -62,9 +62,9 @@ class App:
                 interval=self.interval,
                 past_days=self.past_days
             )[:-1]
-        debug_text('last 10 candles: ')
-        for candle in self.data[-10:]:
-            debug_text('candle: %', candle)
+        # debug_text('last 10 candles: ')
+        # for candle in self.data[-10:]:
+        #     debug_text('candle: %', candle)
         return self
 
     def detect_signals(self) -> App:
